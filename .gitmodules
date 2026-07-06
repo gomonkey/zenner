@@ -1,0 +1,6 @@
+[submodule "zenner-client"]
+	path = zenner-client
+	url = https://github.com/gomonkey/zenner-client
+[submodule "zenner-core"]
+	path = zenner-core
+	url = https://github.com/gomonkey/zenner-core
