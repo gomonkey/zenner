@@ -1,9 +1,15 @@
 [submodule "zenner-client"]
 	path = zenner-client
 	url = https://github.com/gomonkey/zenner-client
+  branch = main
+  ignore = dirty
 [submodule "zenner-core"]
 	path = zenner-core
 	url = https://github.com/gomonkey/zenner-core
+  branch = main
+  ignore = dirty
 [submodule "zenner-auth"]
 	path = zenner-auth
 	url = https://github.com/gomonkey/zenner-auth
+  branch = main
+  ignore = dirty
