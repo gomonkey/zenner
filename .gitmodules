@@ -4,3 +4,6 @@
 [submodule "zenner-core"]
 	path = zenner-core
 	url = https://github.com/gomonkey/zenner-core
+[submodule "zenner-auth"]
+	path = zenner-auth
+	url = https://github.com/gomonkey/zenner-auth
