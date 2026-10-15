@@ -1,6 +1,14 @@
+# Ignore agent-related files
 GEMINI.md
+AGENTS.md
 .agent/*
+.pi/*
+.opencode/*
+
+# Editor
+.vscode/*
 
 # Environment files with secrets
 .env.local
 .env.prod
+
