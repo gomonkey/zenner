@@ -75,8 +75,8 @@ Runs the complete stack: PostgreSQL + zenner-auth + zenner-core.
 
 **Service Ports (prod, host:container):**
 - PostgreSQL: `5432`
-- zenner-core: `8081:8080`
-- zenner-auth: `8082:8080`
+- zenner-core: `8081:8081`
+- zenner-auth: `8082:8082`
 
 **Local development (run via `run-core.sh` / `run-auth.sh`):**
 - zenner-core: `8081`
