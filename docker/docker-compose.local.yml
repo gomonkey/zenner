@@ -1,0 +1,37 @@
+# Local development compose file for zenner
+# 
+# This provides the shared PostgreSQL database for both zenner-auth and zenner-core.
+# Both services use different schemas (zenner_auth and zenner_core) in the same database.
+#
+# Usage:
+#   Start database: docker-compose -f docker/docker-compose.local.yml up -d
+#   Stop database:  docker-compose -f docker/docker-compose.local.yml down
+#
+# Then run zenner-auth and zenner-core directly via IDE or Maven:
+#   cd zenner-auth && ./mvnw spring-boot:run
+#   cd zenner-core && ./mvnw spring-boot:run
+
+name: zenner
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: zenner-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-zenner_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-zenner_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ../init/init-schemas-local.sql:/docker-entrypoint-initdb.d/init-schemas.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zenner_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_dev:
