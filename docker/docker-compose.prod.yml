@@ -41,7 +41,7 @@ services:
     container_name: zenner-auth
     restart: unless-stopped
     ports:
-      - "8082:8080"
+      - "8082:8082"
     env_file:
       - ../zenner-auth/.env.prod
     environment:
@@ -51,7 +51,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +69,7 @@ services:
     container_name: zenner-core
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "8081:8081"
     env_file:
       - ../zenner-core/.env.prod
     environment:
@@ -79,7 +79,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
