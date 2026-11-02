@@ -1,7 +1,9 @@
 # Ignore agent-related files
 GEMINI.md
 AGENTS.md
+skills-lock.json
 .agent/*
+.agents/*
 .pi/*
 .opencode/*
 

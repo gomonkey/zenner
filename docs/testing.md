@@ -8,7 +8,7 @@ Run from a service directory (`zenner-core` or `zenner-auth`):
 
 - Fast loop: `./mvnw -B test`
 - Full build + tests: `./mvnw -B verify`
-- From root using the shared script: `.opencode/scripts/verify.sh test zenner-core` (or `full`).
+- From root using the shared script: `scripts/verify.sh test zenner-core` (or `full`).
 
 Database-backed tests require the shared Postgres (start with `scripts/docker-local.sh up`) or Testcontainers.
 
