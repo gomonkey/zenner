@@ -1,0 +1,45 @@
+spring:
+
+  application:
+    name: zenner-core
+
+  threads:
+    virtual:
+      enabled: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ${DATABASE_SCHEMA:zenner_core}
+        default_batch_fetch_size: 25
+
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  flyway:
+    enabled: true
+    default-schema: ${DATABASE_SCHEMA:zenner_core}
+    schemas:
+      - ${DATABASE_SCHEMA:zenner_core}
+    locations:
+      - classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    redis:
+      enabled: false
