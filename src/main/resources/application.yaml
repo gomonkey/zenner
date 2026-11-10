@@ -3,10 +3,18 @@ spring:
   application:
     name: zenner-core
 
+  threads:
+    virtual:
+      enabled: true
+
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ${DATABASE_SCHEMA:zenner_core}
+        default_batch_fetch_size: 25
 
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
@@ -15,9 +23,9 @@ spring:
 
   flyway:
     enabled: true
-    default-schema: ${DATABASE_SCHEMA}
+    default-schema: ${DATABASE_SCHEMA:zenner_core}
     schemas:
-      - ${DATABASE_SCHEMA}
+      - ${DATABASE_SCHEMA:zenner_core}
     locations:
       - classpath:db/migration
 

@@ -3,7 +3,7 @@ CREATE TABLE zenner_core.tasks (
     day_id UUID NOT NULL,
     detail VARCHAR(255) NOT NULL,
     action VARCHAR(16) NOT NULL,
-    scheduled_time TIME,
+    scheduled_time TIMESTAMP,
     finished BOOLEAN,
     delegated_to VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
