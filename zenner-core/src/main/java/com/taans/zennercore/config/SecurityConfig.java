@@ -19,7 +19,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
-                // TODO: Wire OAuth2 Resource Server (JWT Bearer token validation) when zenner-auth is connected
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                // TODO: Wire OAuth2 Resource Server (JWT Bearer token validation) and lock down protected endpoints
                 .requestMatchers("/api/v1/**").permitAll()
                 .anyRequest().authenticated()
             );

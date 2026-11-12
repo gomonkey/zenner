@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Production Docker Compose helper script
-# Manages the full zenner stack (PostgreSQL + zenner-auth + zenner-core)
+# Manages the full zenner stack (PostgreSQL + zenner-core)
 
 set -e
 
@@ -34,8 +34,7 @@ case "$command" in
     echo ""
     echo "Services:"
     echo "  PostgreSQL:   localhost:5432"
-    echo "  zenner-auth:  localhost:8082"
-    echo "  zenner-core:  localhost:8081"
+    echo "  zenner-core:  localhost:8080"
     ;;
     
   down|stop)
@@ -90,11 +89,8 @@ case "$command" in
     echo "PostgreSQL health:"
     docker exec zenner-postgres pg_isready -U "${POSTGRES_USER:-zenner}" || echo "  ✗ Not ready"
     echo ""
-    echo "zenner-auth health:"
-    curl -sf http://localhost:8082/actuator/health >/dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
-    echo ""
     echo "zenner-core health:"
-    curl -sf http://localhost:8081/actuator/health >/dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+    curl -sf http://localhost:8080/actuator/health >/dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
     ;;
     
   build)
@@ -159,7 +155,7 @@ Commands:
 Examples:
   $0 up                    # Start all services
   $0 logs                  # View all logs
-  $0 logs zenner-auth      # View zenner-auth logs only
+  $0 logs zenner-core      # View zenner-core logs only
   $0 health                # Check service health
   $0 build                 # Rebuild all images
   $0 psql                  # Connect to database
