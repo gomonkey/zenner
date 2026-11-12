@@ -33,7 +33,7 @@ case "$command" in
     echo "✓ zenner-core started"
     echo ""
     echo "Service:"
-    echo "  zenner-core:  localhost:${SERVER_PORT:-8081}"
+    echo "  zenner-core:  localhost:${SERVER_PORT:-8080}"
     echo ""
     echo "Note: Ensure PostgreSQL is running with zenner_core schema"
     ;;
@@ -68,7 +68,7 @@ case "$command" in
     docker compose -f "$COMPOSE_FILE" ps
     echo ""
     echo "zenner-core health endpoint:"
-    curl -sf http://localhost:${SERVER_PORT:-8081}/actuator/health >/dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+    curl -sf http://localhost:${SERVER_PORT:-8080}/actuator/health >/dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
     ;;
     
   build)

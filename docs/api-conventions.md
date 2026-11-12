@@ -20,7 +20,7 @@ This guide provides rules and standard patterns for URI design, standard methods
 ### Base URL & Versioning
 - **Application APIs**: `/api/v1/<collection>`
 - **Health & Ops Probes**: `/actuator/health` (unauthenticated), `/actuator/metrics`, `/actuator/prometheus`
-- **Gateway Reservation**: Port `8080` is reserved for the API Gateway. Services run on dedicated internal ports (`8081` for `zenner-core`, `8082` for `zenner-auth`).
+- **Port**: The monolithic backend service runs on port `8080`.
 
 ### Resource Hierarchy
 Resources in Zenner form parent-child hierarchies reflecting domain ownership:
@@ -223,7 +223,7 @@ To prevent the "lost update" problem in multi-device sync:
 
 ## 9. Authentication & Tenant Isolation
 
-- **Target State**: `zenner-auth` issues short-lived RS256 JWTs (`sub: userId`). `zenner-core` validates Bearer tokens as a stateless OAuth2 Resource Server.
+- **Target State**: The backend issues short-lived RS256 JWTs (`sub: userId`) via auth endpoints and validates Bearer tokens as a stateless OAuth2 Resource Server.
 - **Dev Fallback**: Supported via optional `X-User-Id` request header with fallback to dev UUID `00000000-0000-0000-0000-000000000001`.
 - **Strict Tenant Isolation**: Core references users exclusively by `UUID` (`user_id`). **Every repository query and data access operation must include `userId` in its WHERE clause** (e.g. `dayRepository.findByIdAndUserId(id, userId)`). Direct `findById` without owner verification is forbidden to prevent Insecure Direct Object References (IDOR).
 

@@ -2,25 +2,20 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
-## Multi-service repository architecture
+## Repository architecture
 
-This repository (`gomonkey/zenner`) acts as the parent umbrella orchestrator for the Zenner ecosystem, coordinating submodule services:
-- `zenner-core` (`gomonkey/zenner-core`): Core domain, planning, days, tasks, time blocks.
-- `zenner-auth` (`gomonkey/zenner-auth`): Identity, users, credentials, tokens.
+This repository (`gomonkey/zenner`) houses the monolithic backend service (`zenner-core`) and coordinates the frontend client submodule (`zenner-client`):
+- `zenner-core`: Monolithic backend service (users, auth, days, tasks, timeblocks, reminders).
 - `zenner-client` (`gomonkey/zenner-client`): Frontend client application.
 
-### Multi-repo workflow conventions
+### Workflow conventions
 
 1. **System & Feature Backlog**:
-   - High-level feature specs, cross-cutting architectures, and wayfinder maps live here in `gomonkey/zenner`.
+   - Feature specs, architecture, and wayfinder maps live here in `gomonkey/zenner`.
    - `/triage`, `/to-spec`, and `/wayfinder` operate on `gomonkey/zenner` by default.
-2. **Service-Specific Implementation**:
-   - Implementation tasks scoped to a single service can be filed or referenced in that service's repo (`gh issue create --repo gomonkey/zenner-core ...`).
-   - Cross-references use GitHub's full issue qualifier: `gomonkey/zenner#123`, `gomonkey/zenner-core#45`.
-3. **Submodule & PR workflow**:
-   - Code changes happen on feature branches in the specific submodule (`zenner-core` / `zenner-auth`).
-   - Open PRs against the service repository.
-   - When the service PR is merged or ready for end-to-end testing, update the submodule pointer in `zenner` on a tracking branch.
+2. **Implementation**:
+   - Backend implementation tasks are tracked in `gomonkey/zenner`.
+   - Frontend changes happen in the `zenner-client` submodule.
 
 ## Conventions
 

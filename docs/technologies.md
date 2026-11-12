@@ -12,7 +12,7 @@
 
 ## Data
 
-- **PostgreSQL 17** (one instance, schema per service).
+- **PostgreSQL 17** (schema `zenner_core`).
 - **Redis** (starter present; available for caching/session helpers).
 - **Flyway** for schema changes (`ddl-auto=validate`; never `update` outside local dev).
 - **Hibernate/JPA** with `open-in-view=false`.
@@ -20,7 +20,7 @@
 ## Security
 
 - Spring Security 7, lambda DSL only (no `.and()`, `antMatchers`, `authorizeRequests`).
-- OAuth2 client in `zenner-auth`; resource server (JWT) targeted for `zenner-core`.
+- OAuth2 client and resource server (JWT) in `zenner-core`.
 - JSpecify (`org.jspecify.annotations.*`) for nullability; no `org.springframework.lang.*`.
 
 ## Build and tooling
