@@ -1,14 +1,12 @@
 # Local development compose file for zenner
 # 
-# This provides the shared PostgreSQL database for both zenner-auth and zenner-core.
-# Both services use different schemas (zenner_auth and zenner_core) in the same database.
+# This provides the PostgreSQL database for zenner-core.
 #
 # Usage:
 #   Start database: docker-compose -f docker/docker-compose.local.yml up -d
 #   Stop database:  docker-compose -f docker/docker-compose.local.yml down
 #
-# Then run zenner-auth and zenner-core directly via IDE or Maven:
-#   cd zenner-auth && ./mvnw spring-boot:run
+# Then run zenner-core directly via IDE or Maven:
 #   cd zenner-core && ./mvnw spring-boot:run
 
 name: zenner

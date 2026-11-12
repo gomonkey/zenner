@@ -1,10 +1,10 @@
 # Testing
 
-Tests live next to the code in each service module (`src/test/java`). Both modules currently ship a context-load smoke test; add slices and integration tests as features land.
+Tests live next to the code in `zenner-core/src/test/java`.
 
 ## Commands
 
-Run from a service directory (`zenner-core` or `zenner-auth`):
+Run from the service directory (`zenner-core`):
 
 - Fast loop: `./mvnw -B test`
 - Full build + tests: `./mvnw -B verify`
