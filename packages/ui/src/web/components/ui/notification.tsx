@@ -105,7 +105,7 @@ export const NotificationItem = React.forwardRef<HTMLDivElement, NotificationIte
             >
               {title}
             </h6>
-            <span className="text-[10px] text-muted-foreground shrink-0 font-mono">
+            <span className="text-[10px] text-muted-foreground shrink-0 font-sans">
               {timestamp}
             </span>
           </div>
@@ -224,7 +224,7 @@ export function NotificationList({
             <div className="mb-2 rounded-full bg-muted/60 p-3 text-muted-foreground">
               <Bell className="size-5" />
             </div>
-            <p className="text-xs text-muted-foreground font-serif italic max-w-[200px]">
+            <p className="text-xs text-muted-foreground font-sans italic max-w-[200px]">
               {emptyMessage}
             </p>
           </div>

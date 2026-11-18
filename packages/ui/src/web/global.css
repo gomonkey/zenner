@@ -22,27 +22,26 @@
   body {
     @apply bg-background text-foreground antialiased font-zen-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    letter-spacing: -0.011em;
-    transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    letter-spacing: -0.012em;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Zen Selection: Màu lá rêu dịu êm thay vì xanh chói */
+  /* Monochrome High-Contrast Selection */
   ::selection {
-    background-color: hsl(var(--primary) / 0.18);
-    color: hsl(var(--foreground));
+    background-color: hsl(var(--foreground));
+    color: hsl(var(--background));
   }
 
-  /* Zen Focus Rings: Mềm mại, không giật */
+  /* Monochrome Focus Rings: Razor sharp & clean */
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.35);
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 3px hsl(var(--foreground) / 0.4);
   }
 
-  /* Zen Minimal Scrollbar */
+  /* Monochrome Ultra-Clean Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   ::-webkit-scrollbar-track {
@@ -50,12 +49,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.25);
+    background: hsl(var(--muted-foreground) / 0.3);
     border-radius: 9999px;
-    transition: background 0.2s ease;
+    transition: background 0.15s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.45);
+    background: hsl(var(--foreground) / 0.5);
   }
 }

@@ -209,7 +209,7 @@ export function Toolbar({
           )}
         </div>
 
-        <div className="w-[1.5px] h-4 bg-zinc-300 dark:bg-zinc-700 self-center mx-0.5" />
+        <div className="w-[1px] h-4 bg-border self-center mx-0.5" />
         
         <Button
           variant="ghost"

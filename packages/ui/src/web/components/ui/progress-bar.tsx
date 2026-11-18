@@ -48,7 +48,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
           <div className="flex items-center justify-between text-xs text-muted-foreground select-none">
             {label && <span className="font-medium text-foreground tracking-tight">{label}</span>}
             {showValue && (
-              <span className="font-mono text-[11px] font-medium ml-auto">
+              <span className="font-sans text-[11px] font-medium ml-auto">
                 {Math.round(percentage)}%
               </span>
             )}

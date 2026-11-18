@@ -1,101 +1,101 @@
 /* ==========================================================================
-   ZENNER THEME COLOR & VISUAL TOKENS
-   Triết lý: Zen - Tự nhiên, Wabi-Sabi, giấy Dó & mực Sumi, rêu phong & đá cuội.
-   Không dùng màu neon công nghiệp hay phong cách AI boilerplate.
+   ZENNER THEME COLOR & VISUAL TOKENS - MONOCHROME EDITION
+   Design Philosophy: Minimalist Monochrome, Swiss Precision & High Contrast.
+   Built with pure tonal depth (charcoal, obsidian, platinum & stark white),
+   clean architectural lines, and distraction-free spatial balance.
    ========================================================================== */
 
 :root {
-  /* ===================== ZEN LIGHT PALETTE ===================== */
-  /* Nền giấy Dó / Washi Paper cao cấp */
-  --background: 40 22% 97%;          /* #FAF8F5 */
-  --foreground: 30 10% 16%;          /* #2D2926 - Mực Sumi dịu êm */
+  /* ===================== MONOCHROME LIGHT PALETTE ===================== */
+  /* Clean architectural off-white background */
+  --background: 0 0% 98%;            /* #FAFAFA */
+  --foreground: 0 0% 9%;             /* #171717 - Deep carbon black */
 
-  /* Thẻ nội dung màu giấy gạo ép */
-  --card: 40 25% 99%;                /* #FDFCFA */
-  --card-foreground: 30 10% 16%;
+  /* Pure crisp white card surfaces */
+  --card: 0 0% 100%;                 /* #FFFFFF */
+  --card-foreground: 0 0% 9%;
 
-  /* Popover / Menu mờ sương */
-  --popover: 40 25% 99%;
-  --popover-foreground: 30 10% 16%;
+  /* Popovers and floating menus */
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
 
-  /* Primary: Xanh Rêu Thiền (Zen Forest Moss / Bamboo Pine) */
-  --primary: 158 28% 38%;            /* #457B64 */
-  --primary-foreground: 40 20% 98%; /* #FDFCFB */
+  /* Primary: Bold, stark black accent with pure white foreground */
+  --primary: 0 0% 9%;                /* #171717 */
+  --primary-foreground: 0 0% 100%;   /* #FFFFFF */
 
-  /* Secondary: Cát sỏi vườn thiền (Sand / River Stone) */
-  --secondary: 38 16% 92%;           /* #ECE7DF */
-  --secondary-foreground: 30 10% 20%;
+  /* Secondary: Tactile neutral light gray */
+  --secondary: 0 0% 94%;             /* #F0F0F0 */
+  --secondary-foreground: 0 0% 12%;
 
-  /* Muted: Đá mòn thời gian */
-  --muted: 38 14% 92%;               /* #ECE8E1 */
-  --muted-foreground: 30 8% 46%;     /* #78726A */
+  /* Muted: Soft concrete / mist gray */
+  --muted: 0 0% 95%;                 /* #F2F2F2 */
+  --muted-foreground: 0 0% 45%;       /* #737373 */
 
-  /* Accent: Giọt sương sớm đọng lá trà (Tea Dew) */
-  --accent: 158 20% 92%;             /* #E6EEEA */
-  --accent-foreground: 158 35% 26%;  /* #2A4F3E */
+  /* Accent: High-contrast hover surface */
+  --accent: 0 0% 92%;               /* #EBEBEB */
+  --accent-foreground: 0 0% 9%;
 
-  /* Destructive: Đỏ chu sa Nhật Bản (Japanese Cinnabar Vermilion) */
-  --destructive: 6 62% 48%;          /* #CD463B */
+  /* Destructive: High-contrast charcoal with clear visual distinction */
+  --destructive: 0 0% 20%;           /* #333333 */
   --destructive-foreground: 0 0% 100%;
 
-  /* Đường nét tối giản như nét bút lông */
-  --border: 35 15% 88%;              /* #E3DFD7 */
-  --input: 35 15% 88%;
-  --ring: 158 28% 38%;
+  /* Hairline precision architectural borders */
+  --border: 0 0% 88%;                /* #E0E0E0 */
+  --input: 0 0% 88%;
+  --ring: 0 0% 9%;
 
-  /* Bo góc hữu cơ tự nhiên */
-  --radius: 0.875rem;                /* 14px */
+  /* Architectural corner radius */
+  --radius: 0.75rem;                 /* 12px */
 
-  /* Ánh sáng & bóng đổ khuếch tán dịu như qua rèm tre Shoji */
-  --shadow-zen-sm: 0 1px 3px -1px rgba(45, 41, 38, 0.05), 0 1px 2px -1px rgba(45, 41, 38, 0.03);
-  --shadow-zen-md: 0 4px 14px -2px rgba(45, 41, 38, 0.07), 0 2px 6px -1px rgba(45, 41, 38, 0.04);
-  --shadow-zen-lg: 0 12px 32px -4px rgba(45, 41, 38, 0.09), 0 4px 12px -2px rgba(45, 41, 38, 0.04);
-  --shadow-zen-inner: inset 0 1px 2px 0 rgba(45, 41, 38, 0.04);
+  /* Razor-sharp neutral drop shadows */
+  --shadow-zen-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-zen-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-zen-lg: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  --shadow-zen-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-/* ===================== ZEN DARK PALETTE ===================== */
+/* ===================== MONOCHROME DARK PALETTE ===================== */
 .dark {
-  /* Nền đá than chì mờ (Moonlit Sumi Slate) */
-  --background: 220 12% 10%;         /* #17191C */
-  --foreground: 40 15% 92%;          /* #EDEAE4 - Trắng ngà trăng soi */
+  /* Deep obsidian / true OLED black */
+  --background: 0 0% 5%;             /* #0D0D0D */
+  --foreground: 0 0% 98%;            /* #FAFAFA - Crisp platinum white */
 
-  /* Thẻ nội dung đá bazan êm ái */
-  --card: 220 10% 13%;               /* #202226 */
-  --card-foreground: 40 15% 92%;
+  /* Structured carbon surfaces */
+  --card: 0 0% 9%;                   /* #171717 */
+  --card-foreground: 0 0% 98%;
 
-  /* Popover / Dropdown */
-  --popover: 220 10% 14%;            /* #222429 */
-  --popover-foreground: 40 15% 92%;
+  /* Popover / Dropdown surfaces */
+  --popover: 0 0% 10%;               /* #1A1A1A */
+  --popover-foreground: 0 0% 98%;
 
-  /* Primary: Mầm tre phát sáng dưới trăng (Luminous Bamboo) */
-  --primary: 158 35% 52%;            /* #589E80 */
-  --primary-foreground: 220 15% 8%;  /* #121416 */
+  /* Primary: Crisp stark white with deep obsidian foreground */
+  --primary: 0 0% 98%;               /* #FAFAFA */
+  --primary-foreground: 0 0% 7%;     /* #121212 */
 
-  /* Secondary: Xám khói đá cuội */
-  --secondary: 220 8% 18%;           /* #2B2E33 */
-  --secondary-foreground: 40 15% 92%;
+  /* Secondary: Deep matte charcoal */
+  --secondary: 0 0% 16%;             /* #292929 */
+  --secondary-foreground: 0 0% 98%;
 
   /* Muted */
-  --muted: 220 8% 18%;               /* #2B2E33 */
-  --muted-foreground: 40 6% 62%;     /* #A39F99 */
+  --muted: 0 0% 14%;                 /* #242424 */
+  --muted-foreground: 0 0% 63%;       /* #A1A1A1 */
 
   /* Accent */
-  --accent: 158 25% 18%;             /* #1E342B */
-  --accent-foreground: 158 38% 74%;  /* #88C7AB */
+  --accent: 0 0% 18%;                /* #2E2E2E */
+  --accent-foreground: 0 0% 98%;
 
   /* Destructive */
-  --destructive: 6 55% 48%;          /* #C9473C */
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 0 0% 88%;           /* #E0E0E0 */
+  --destructive-foreground: 0 0% 10%;
 
-  /* Đường viền mờ tinh tế */
-  --border: 220 8% 20%;              /* #303338 */
-  --input: 220 8% 20%;
-  --ring: 158 35% 52%;
+  /* Razor-sharp dark hairline borders */
+  --border: 0 0% 18%;                /* #2E2E2E */
+  --input: 0 0% 18%;
+  --ring: 0 0% 98%;
 
-  /* Bóng đổ đêm tĩnh mịch */
-  --shadow-zen-sm: 0 1px 3px -1px rgba(0, 0, 0, 0.35);
-  --shadow-zen-md: 0 6px 18px -3px rgba(0, 0, 0, 0.45);
-  --shadow-zen-lg: 0 16px 40px -6px rgba(0, 0, 0, 0.55);
-  --shadow-zen-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  /* Dark ambient occlusion shadows */
+  --shadow-zen-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+  --shadow-zen-md: 0 4px 14px -2px rgba(0, 0, 0, 0.7);
+  --shadow-zen-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.85);
+  --shadow-zen-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
-

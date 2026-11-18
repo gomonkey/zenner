@@ -72,42 +72,42 @@ export function Login() {
         <div className="hidden lg:flex lg:col-span-7 relative flex-col justify-between p-12 bg-muted/30 overflow-hidden">
           {/* Background Image overlay */}
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-75 dark:opacity-45 pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-20 pointer-events-none grayscale"
             style={{ backgroundImage: `url(${backgroundSvg})` }}
           />
           {/* Subtle gradient overlay to make it look extremely premium */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-background/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-foreground/5 via-transparent to-background/20 pointer-events-none" />
 
           {/* Logo area */}
           <div className="relative z-10 flex items-center gap-3">
             <img 
               src={resolvedTheme === 'dark' ? logoLight : logoBlue} 
               alt="Zenner Logo" 
-              className="h-10 w-10 rounded-xl object-cover shadow-sm border border-border/50"
+              className="h-10 w-10 rounded-xl object-cover shadow-sm border border-border grayscale contrast-125"
             />
-            <span className="font-outfit text-2xl font-extrabold tracking-tight text-primary">
+            <span className="font-sans text-2xl font-extrabold tracking-tight text-foreground">
               Zenner
             </span>
           </div>
 
           {/* Slogan and details */}
           <div className="relative z-10 my-auto max-w-xl space-y-6">
-            <h1 className="font-outfit text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
+            <h1 className="font-sans text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
               {t('common.welcome')}
             </h1>
-            <p className="text-muted-foreground dark:text-slate-200 text-lg leading-relaxed font-medium">
+            <p className="text-muted-foreground text-lg leading-relaxed font-medium">
               {t('common.slogan')}
             </p>
             <div className="flex items-center gap-4 pt-4">
-              <div className="h-1 w-12 bg-primary rounded-full" />
-              <span className="text-xs font-bold tracking-wider text-muted-foreground dark:text-slate-300 uppercase">
+              <div className="h-0.5 w-10 bg-foreground" />
+              <span className="font-sans text-xs font-bold tracking-widest text-muted-foreground uppercase">
                 Focus & Productivity
               </span>
             </div>
           </div>
 
           {/* Footer of left panel */}
-          <div className="relative z-10 text-xs text-muted-foreground dark:text-slate-400">
+          <div className="relative z-10 font-sans text-xs text-muted-foreground">
             © {new Date().getFullYear()} Zenner. All rights reserved.
           </div>
         </div>
@@ -120,9 +120,9 @@ export function Login() {
               <img 
                 src={resolvedTheme === 'dark' ? logoLight : logoBlue} 
                 alt="Zenner Logo" 
-                className="h-14 w-14 rounded-2xl shadow-md border border-border/50 mb-2"
+                className="h-14 w-14 rounded-2xl shadow-md border border-border mb-2 grayscale contrast-125"
               />
-              <h2 className="font-outfit text-3xl font-extrabold text-primary">
+              <h2 className="font-sans text-3xl font-extrabold text-foreground">
                 Zenner
               </h2>
               <p className="text-muted-foreground text-sm font-medium">
@@ -131,7 +131,7 @@ export function Login() {
             </div>
 
             <div className="space-y-2 text-center lg:text-left">
-              <h1 className="text-3xl font-bold font-outfit tracking-tight">{t('auth.login')}</h1>
+              <h1 className="text-3xl font-bold font-sans tracking-tight">{t('auth.login')}</h1>
               <p className="text-sm text-muted-foreground">
                 {t('common.welcome')}
               </p>
@@ -164,7 +164,7 @@ export function Login() {
                   <Label htmlFor="password">{t('auth.password')}</Label>
                   <Link 
                     to="/forgot-password" 
-                    className="text-xs text-primary hover:underline font-medium"
+                    className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium"
                     tabIndex={4}
                   >
                     {t('auth.forgotPassword')}
@@ -201,9 +201,9 @@ export function Login() {
               className="w-full h-11 font-medium flex items-center justify-center gap-2 border-border hover:bg-muted/50"
               tabIndex={5}
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 grayscale" viewBox="0 0 24 24">
                 <path
-                  fill="#EA4335"
+                  fill="currentColor"
                   d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.51 0-6.357-2.847-6.357-6.357s2.847-6.357 6.357-6.357c1.622 0 3.097.618 4.223 1.63L21.29 4.36C19.123 2.274 16.037 1 12.24 1 5.864 1 .7 6.164.7 12.54S5.864 24.08 12.24 24.08c6.165 0 11.233-5.068 11.233-11.233 0-.84-.11-1.63-.3-2.562H12.24Z"
                 />
               </svg>
@@ -215,7 +215,7 @@ export function Login() {
               {t('auth.dontHaveAccount')}{' '}
               <Link 
                 to="/register" 
-                className="text-primary hover:underline font-semibold"
+                className="text-foreground hover:underline font-bold"
                 tabIndex={6}
               >
                 {t('auth.signup')}

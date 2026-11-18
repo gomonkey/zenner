@@ -40,15 +40,15 @@ export function Home() {
 					{/* ---------------- CỘT TRÁI: TIMEBLOCK ---------------- */}
 					<div className="w-full lg:w-[40%] h-full max-h-full flex flex-col gap-3 overflow-hidden">
 						<div className={themeConfig.headerDivider}>
-							<div className="flex flex-col gap-1">
-								<span className="text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-550 select-none">
+							<div className="flex flex-col gap-0.5">
+								<span className="text-[10px] font-sans font-bold uppercase tracking-widest text-muted-foreground select-none">
 									{t('home.selectedMonth')}: {pageData.selectedMonth}
 								</span>
 								<div className="flex items-baseline gap-2">
-									<span className="font-extrabold text-sm text-zinc-900 dark:text-zinc-100 select-none">
+									<span className="font-bold text-xs uppercase tracking-wider text-foreground select-none font-sans">
 										{t('home.date')}:
 									</span>
-									<span className="font-bold text-zinc-750 dark:text-zinc-300 pb-0.5 leading-none pr-8 select-none">
+									<span className="font-sans text-xs text-foreground/90 pb-0.5 leading-none pr-8 select-none">
 										{pageData.date}
 									</span>
 								</div>
