@@ -1,0 +1,12 @@
+{
+  "extends": "./packages/shared-configs/typescript/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./apps/web/src/*"],
+      "@zenner/core/*": ["./packages/core/src/*"],
+      "@zenner/ui/*": ["./packages/ui/src/*"]
+    }
+  }
+}

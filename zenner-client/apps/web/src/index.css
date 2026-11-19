@@ -1,0 +1,33 @@
+@import "../../../packages/ui/src/web/global.css";
+
+/* Base Tailwind classes will load after custom styles declaration layer */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS utilities compiled unconditionally to prevent JIT tree-shaking */
+.vertical-text {
+  writing-mode: vertical-lr;
+  -webkit-writing-mode: vertical-lr;
+  -ms-writing-mode: tb-lr;
+}
+
+.matrix-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: 1fr 1fr !important;
+}
+
+/* Đường kẻ dọc ngăn ô trái/phải trong lưới */
+.matrix-cell-left {
+  border-right: 1px solid hsl(var(--border));
+}
+
+.matrix-cell-divider {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.matrix-cell-left.matrix-cell-divider {
+  border-right: 1px solid hsl(var(--border));
+  border-top: 1px solid hsl(var(--border));
+}

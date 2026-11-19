@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "packages/ui/tailwind.config.js",
+    "css": "packages/ui/src/web/global.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@zenner/ui/web/components",
+    "utils": "@zenner/ui/web/lib/utils",
+    "ui": "@zenner/ui/web/components/ui"
+  },
+  "iconLibrary": "lucide"
+}

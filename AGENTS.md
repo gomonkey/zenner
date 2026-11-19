@@ -6,7 +6,7 @@ Detailed reference material lives in `docs/` (linked per section) so this file s
 
 ## Repository layout
 
-Monolithic Spring Boot backend service (`zenner-core`, port 8080, schema `zenner_core`) backed by PostgreSQL 17; frontend is a separate submodule. See `docs/repository-layout.md`.
+Monolithic Spring Boot backend service (`zenner-core`, port 8080, schema `zenner_core`) backed by PostgreSQL 17; frontend is in `zenner-client/`. See `docs/repository-layout.md`.
 
 - `zenner-core` (port 8080, schema `zenner_core`): users, auth, days, time blocks, tasks, reminders.
 - Port 8080 is the standard backend port.
