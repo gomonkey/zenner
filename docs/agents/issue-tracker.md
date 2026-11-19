@@ -4,9 +4,9 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 ## Repository architecture
 
-This repository (`gomonkey/zenner`) houses the monolithic backend service (`zenner-core`) and coordinates the frontend client submodule (`zenner-client`):
+This repository (`gomonkey/zenner`) houses the monolithic backend service (`zenner-core`) and coordinates the frontend client (`zenner-client`):
 - `zenner-core`: Monolithic backend service (users, auth, days, tasks, timeblocks, reminders).
-- `zenner-client` (`gomonkey/zenner-client`): Frontend client application.
+- `zenner-client`: Frontend client application.
 
 ### Workflow conventions
 
@@ -15,7 +15,7 @@ This repository (`gomonkey/zenner`) houses the monolithic backend service (`zenn
    - `/triage`, `/to-spec`, and `/wayfinder` operate on `gomonkey/zenner` by default.
 2. **Implementation**:
    - Backend implementation tasks are tracked in `gomonkey/zenner`.
-   - Frontend changes happen in the `zenner-client` submodule.
+   - Frontend changes happen in the `zenner-client/` directory.
 
 ## Conventions
 

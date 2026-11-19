@@ -1,6 +1,6 @@
 # Repository layout
 
-Zenner uses a monolithic backend architecture. The root orchestrates shared infrastructure and the frontend submodule.
+Zenner uses a monolithic backend architecture. The root orchestrates shared infrastructure and the frontend client monorepo.
 
 ```
 zenner/
@@ -50,4 +50,4 @@ src/main/resources/
 
 ## Frontend
 
-`zenner-client` is a separate repo (submodule). Backend agents should not edit it unless explicitly asked.
+`zenner-client` is a native monorepo directory (formerly a submodule). Backend agents should not edit it unless explicitly asked.
