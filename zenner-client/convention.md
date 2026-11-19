@@ -21,4 +21,16 @@ feat/<tên màn hình hoặc trang>/<tên tính năng cụ thể>
   - Trang cài đặt: `feat/settings/dark-mode-toggle`
 
 ---
-*Lưu ý: Luôn tuân thủ quy định này khi tạo nhánh mới để các thành viên khác trong nhóm và AI Agent dễ dàng nắm bắt ngữ cảnh phát triển.*
+
+## Quy định Commit Messages (Commit Message Conventions)
+
+- **Không đưa tên file vào commit message**: Tuyệt đối không nhắc đến tên file hoặc đường dẫn file trong tiêu đề cũng như danh sách chi tiết.
+- **Định dạng danh sách thay đổi (Bullet points)**: Sử dụng động từ ở dạng quá khứ, viết thường toàn bộ chữ cái đầu (verb in past form, no capitalization):
+  - `- added ...`
+  - `- updated ...`
+  - `- configured ...`
+  - `- removed ...`
+  - `- documented ...`
+
+---
+*Lưu ý: Luôn tuân thủ quy định này khi tạo nhánh mới và tạo commits để các thành viên khác trong nhóm và AI Agent dễ dàng nắm bắt ngữ cảnh phát triển.*

@@ -50,6 +50,11 @@ Skills (load if available): `spring-boot-engineer`, `java-architect`, `microserv
 - Actuator health/metrics exposed; structured logs, no PII/secrets.
 - Packages by feature within a service (`com.acme.days.{web,service,domain,repo}`).
 
+## Git commit conventions
+
+- **No file names**: Do not include file names or file paths in commit messages (neither in the title nor in bullet points).
+- **List items**: When listing changes in a commit body, start each bullet point with a verb in past form with no capitalization (e.g. `- added ...`, `- updated ...`, `- configured ...`, `- removed ...`).
+
 ## Guardrails
 
 - No destructive commands (drop DB, `git reset --hard`, force-push, delete volumes) without asking.
