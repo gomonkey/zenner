@@ -1,0 +1,101 @@
+/* ==========================================================================
+   ZENNER THEME COLOR & VISUAL TOKENS - MONOCHROME EDITION
+   Design Philosophy: Minimalist Monochrome, Swiss Precision & High Contrast.
+   Built with pure tonal depth (charcoal, obsidian, platinum & stark white),
+   clean architectural lines, and distraction-free spatial balance.
+   ========================================================================== */
+
+:root {
+  /* ===================== MONOCHROME LIGHT PALETTE ===================== */
+  /* Clean architectural off-white background */
+  --background: 0 0% 98%;            /* #FAFAFA */
+  --foreground: 0 0% 9%;             /* #171717 - Deep carbon black */
+
+  /* Pure crisp white card surfaces */
+  --card: 0 0% 100%;                 /* #FFFFFF */
+  --card-foreground: 0 0% 9%;
+
+  /* Popovers and floating menus */
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+
+  /* Primary: Bold, stark black accent with pure white foreground */
+  --primary: 0 0% 9%;                /* #171717 */
+  --primary-foreground: 0 0% 100%;   /* #FFFFFF */
+
+  /* Secondary: Tactile neutral light gray */
+  --secondary: 0 0% 94%;             /* #F0F0F0 */
+  --secondary-foreground: 0 0% 12%;
+
+  /* Muted: Soft concrete / mist gray */
+  --muted: 0 0% 95%;                 /* #F2F2F2 */
+  --muted-foreground: 0 0% 45%;       /* #737373 */
+
+  /* Accent: High-contrast hover surface */
+  --accent: 0 0% 92%;               /* #EBEBEB */
+  --accent-foreground: 0 0% 9%;
+
+  /* Destructive: High-contrast charcoal with clear visual distinction */
+  --destructive: 0 0% 20%;           /* #333333 */
+  --destructive-foreground: 0 0% 100%;
+
+  /* Hairline precision architectural borders */
+  --border: 0 0% 88%;                /* #E0E0E0 */
+  --input: 0 0% 88%;
+  --ring: 0 0% 9%;
+
+  /* Architectural corner radius */
+  --radius: 0.75rem;                 /* 12px */
+
+  /* Razor-sharp neutral drop shadows */
+  --shadow-zen-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-zen-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-zen-lg: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  --shadow-zen-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ===================== MONOCHROME DARK PALETTE ===================== */
+.dark {
+  /* Deep obsidian / true OLED black */
+  --background: 0 0% 5%;             /* #0D0D0D */
+  --foreground: 0 0% 98%;            /* #FAFAFA - Crisp platinum white */
+
+  /* Structured carbon surfaces */
+  --card: 0 0% 9%;                   /* #171717 */
+  --card-foreground: 0 0% 98%;
+
+  /* Popover / Dropdown surfaces */
+  --popover: 0 0% 10%;               /* #1A1A1A */
+  --popover-foreground: 0 0% 98%;
+
+  /* Primary: Crisp stark white with deep obsidian foreground */
+  --primary: 0 0% 98%;               /* #FAFAFA */
+  --primary-foreground: 0 0% 7%;     /* #121212 */
+
+  /* Secondary: Deep matte charcoal */
+  --secondary: 0 0% 16%;             /* #292929 */
+  --secondary-foreground: 0 0% 98%;
+
+  /* Muted */
+  --muted: 0 0% 14%;                 /* #242424 */
+  --muted-foreground: 0 0% 63%;       /* #A1A1A1 */
+
+  /* Accent */
+  --accent: 0 0% 18%;                /* #2E2E2E */
+  --accent-foreground: 0 0% 98%;
+
+  /* Destructive */
+  --destructive: 0 0% 88%;           /* #E0E0E0 */
+  --destructive-foreground: 0 0% 10%;
+
+  /* Razor-sharp dark hairline borders */
+  --border: 0 0% 18%;                /* #2E2E2E */
+  --input: 0 0% 18%;
+  --ring: 0 0% 98%;
+
+  /* Dark ambient occlusion shadows */
+  --shadow-zen-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+  --shadow-zen-md: 0 4px 14px -2px rgba(0, 0, 0, 0.7);
+  --shadow-zen-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.85);
+  --shadow-zen-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}

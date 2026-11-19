@@ -1,0 +1,51 @@
+{
+  "common": {
+    "appName": "Zenner",
+    "welcome": "Chào mừng bạn đã quay trở lại!",
+    "slogan": "Công cụ lập kế hoạch tối giản cho ngày làm việc tập trung."
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "signup": "Đăng ký",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "usernamePlaceholder": "Nhập tên đăng nhập của bạn",
+    "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng.",
+    "forgotPassword": "Quên mật khẩu?",
+    "loginWithGoogle": "Tiếp tục với Google",
+    "dontHaveAccount": "Chưa có tài khoản?",
+    "or": "Hoặc",
+    "email": "Email",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "backToLogin": "Quay lại Đăng nhập",
+    "sendResetLink": "Gửi liên kết đặt lại mật khẩu",
+    "forgotPasswordDescription": "Nhập địa chỉ email của bạn để nhận liên kết đặt lại mật khẩu."
+  },
+  "theme": {
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Hệ thống",
+    "toggle": "Đổi giao diện"
+  },
+  "home": {
+    "logout": "Đăng xuất",
+    "selectedMonth": "Tháng đã chọn",
+    "date": "Ngày",
+    "todayTimeblock": "Lịch trình hôm nay",
+    "dayMode": "CHẾ ĐỘ NGÀY",
+    "reminders": "Nhắc nhở",
+    "eisenhowerTitle": "Ma trận Quyết định Eisenhower",
+    "urgent": "Khẩn cấp",
+    "notUrgent": "Không khẩn cấp",
+    "important": "Quan trọng",
+    "unimportant": "Không quan trọng",
+    "taskDo": "Nhiệm vụ (Làm ngay)",
+    "when": "Thời gian",
+    "done": "Xong",
+    "taskTodo": "Nhiệm vụ (Lên lịch)",
+    "taskDelegate": "Nhiệm vụ (Ủy quyền)",
+    "whoCanDoIt": "Ai có thể làm giúp bạn?",
+    "taskDelete": "Nhiệm vụ (Xóa bỏ)"
+  }
+}

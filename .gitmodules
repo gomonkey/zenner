@@ -1,5 +1,0 @@
-[submodule "zenner-client"]
-	path = zenner-client
-	url = https://github.com/gomonkey/zenner-client
-  branch = main
-  ignore = dirty

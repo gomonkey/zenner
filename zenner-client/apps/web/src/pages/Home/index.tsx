@@ -1,0 +1,124 @@
+import { useTranslation } from 'react-i18next';
+import { useAuthStore, useThemeStore } from '@zenner/core/store/index';
+import { Timeblock } from '@zenner/ui';
+import { useHomeData } from './hooks/useHomeData';
+import { Toolbar } from './components/Toolbar';
+import { ReminderList } from './components/ReminderList';
+import { GratitudeCard } from './components/GratitudeCard';
+import { EisenhowerMatrix } from './components/EisenhowerMatrix';
+import { getThemeList, defaultTheme } from '@zenner/core/theme/themeConfig';
+
+export function Home() {
+	const logout = useAuthStore((state) => state.logout);
+	const { resolvedTheme, toggleTheme } = useThemeStore();
+	const { t, i18n } = useTranslation();
+
+	const toggleLanguage = () => {
+		i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi');
+	};
+
+	const {
+		pageData,
+		themeBoost,
+		toggleThemeBoost,
+		handleToggleReminder,
+		handleToggleDoTask,
+		handleTimeGoalChange,
+	} = useHomeData();
+
+	// Đọc theme đang được chọn từ danh sách dynamic theme list
+	const availableThemes = getThemeList();
+	const themeConfig =
+		availableThemes.find((t) => t.id === themeBoost) || defaultTheme;
+
+	return (
+		<div className="h-screen max-h-screen w-screen overflow-hidden bg-background text-foreground p-3 md:p-4 flex flex-col items-center justify-center relative font-sans transition-colors duration-200">
+			{/* Cấu trúc cha bọc Planner */}
+			<div className="w-full h-full max-h-full flex items-stretch gap-0 relative overflow-hidden">
+				{/* KHUNG PLANNER LỚN CHÍNH (Tiêu thụ trực tiếp từ themeConfig) */}
+				<div className={themeConfig.plannerWrapper}>
+					{/* ---------------- CỘT TRÁI: TIMEBLOCK ---------------- */}
+					<div className="w-full lg:w-[40%] h-full max-h-full flex flex-col gap-3 overflow-hidden">
+						<div className={themeConfig.headerDivider}>
+							<div className="flex flex-col gap-0.5">
+								<span className="text-[10px] font-sans font-bold uppercase tracking-widest text-muted-foreground select-none">
+									{t('home.selectedMonth')}: {pageData.selectedMonth}
+								</span>
+								<div className="flex items-baseline gap-2">
+									<span className="font-bold text-xs uppercase tracking-wider text-foreground select-none font-sans">
+										{t('home.date')}:
+									</span>
+									<span className="font-sans text-xs text-foreground/90 pb-0.5 leading-none pr-8 select-none">
+										{pageData.date}
+									</span>
+								</div>
+							</div>
+
+							{/* Nút Điều khiển Hệ thống tích hợp làm Toolbar Widget */}
+							<Toolbar
+								currentLanguage={i18n.language}
+								resolvedTheme={resolvedTheme}
+								toggleLanguage={toggleLanguage}
+								toggleTheme={toggleTheme}
+								logout={logout}
+								logoutLabel={t('home.logout')}
+								themeBoost={themeBoost}
+								toggleThemeBoost={toggleThemeBoost}
+								themeConfig={themeConfig}
+							/>
+						</div>
+
+						{/* Timeblock Component dùng chung */}
+						<div className="flex-1 min-h-0 overflow-hidden">
+							<Timeblock
+								events={pageData.events}
+								startHour={0}
+								endHour={23}
+								hourHeight={40}
+								title={t('home.todayTimeblock')}
+								themeConfig={themeConfig}
+							/>
+						</div>
+					</div>
+
+					{/* ---------------- CỘT PHẢI: REMINDERS, MATRIX, NOTES ---------------- */}
+					<div className="w-full lg:w-[60%] h-full max-h-full flex flex-col gap-2 overflow-hidden">
+						{/* 1. REMINDER LABELS (Khung nét đứt) */}
+						<ReminderList
+							reminders={pageData.reminders}
+							selectedWeek={pageData.selectedWeek}
+							onToggleReminder={handleToggleReminder}
+							currentLanguage={i18n.language}
+							titleLabel={t('home.reminders')}
+							themeConfig={themeConfig}
+						/>
+
+						{/* 2. GRATITUDE QUOTE (Lời nhắc nhở tạo động lực) */}
+						<GratitudeCard
+							quote={pageData.gratitudeQuote}
+							themeConfig={themeConfig}
+						/>
+
+						{/* 3. EISENHOWER MATRIX */}
+						<EisenhowerMatrix
+							matrix={pageData.matrix}
+							onToggleDoTask={handleToggleDoTask}
+							t={t}
+							themeConfig={themeConfig}
+						/>
+
+						{/* 4. GHI CHÉP MỤC TIÊU Bullet Journal */}
+						<div className="flex flex-col flex-shrink-0">
+							<input
+								type="text"
+								value={pageData.dailyGoal || ''}
+								onChange={(e) => handleTimeGoalChange(e.target.value)}
+								className={themeConfig.dailyGoalInput}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}

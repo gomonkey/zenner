@@ -1,0 +1,16 @@
+{
+  "extends": "../../packages/shared-configs/typescript/tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@zenner/core/*": ["../../packages/core/src/*"],
+      "@zenner/ui": ["../../packages/ui/index.web"],
+      "@zenner/ui/*": ["../../packages/ui/src/*"],
+      "@zenner/assets/*": ["../../assets/*"]
+    }
+  },
+  "include": ["src"]
+}
