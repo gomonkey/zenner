@@ -236,7 +236,7 @@ export function SearchDropdown({
               className="max-h-56 overflow-y-auto p-0.5 space-y-0.5 text-xs [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full"
             >
               {filteredOptions.length === 0 ? (
-                <li className="px-3 py-4 text-center text-xs text-muted-foreground font-serif italic">
+                <li className="px-3 py-4 text-center text-xs text-muted-foreground font-sans italic">
                   {emptyMessage}
                 </li>
               ) : (

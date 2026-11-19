@@ -76,38 +76,38 @@ export function Register() {
         {/* Left column: Slogan + Logo + Background */}
         <div className="hidden lg:flex lg:col-span-7 relative flex-col justify-between p-12 bg-muted/30 overflow-hidden">
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-75 dark:opacity-45 pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-20 pointer-events-none grayscale"
             style={{ backgroundImage: `url(${backgroundSvg})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-background/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-foreground/5 via-transparent to-background/20 pointer-events-none" />
 
           <div className="relative z-10 flex items-center gap-3">
             <img 
               src={resolvedTheme === 'dark' ? logoLight : logoBlue} 
               alt="Zenner Logo" 
-              className="h-10 w-10 rounded-xl object-cover shadow-sm border border-border/50"
+              className="h-10 w-10 rounded-xl object-cover shadow-sm border border-border grayscale contrast-125"
             />
-            <span className="font-outfit text-2xl font-extrabold tracking-tight text-primary">
+            <span className="font-sans text-2xl font-extrabold tracking-tight text-foreground">
               Zenner
             </span>
           </div>
 
           <div className="relative z-10 my-auto max-w-xl space-y-6">
-            <h1 className="font-outfit text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
+            <h1 className="font-sans text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
               {t('common.welcome')}
             </h1>
-            <p className="text-muted-foreground dark:text-slate-200 text-lg leading-relaxed font-medium">
+            <p className="text-muted-foreground text-lg leading-relaxed font-medium">
               {t('common.slogan')}
             </p>
             <div className="flex items-center gap-4 pt-4">
-              <div className="h-1 w-12 bg-primary rounded-full" />
-              <span className="text-xs font-bold tracking-wider text-muted-foreground dark:text-slate-300 uppercase">
+              <div className="h-0.5 w-10 bg-foreground" />
+              <span className="font-sans text-xs font-bold tracking-widest text-muted-foreground uppercase">
                 Focus & Productivity
               </span>
             </div>
           </div>
 
-          <div className="relative z-10 text-xs text-muted-foreground dark:text-slate-400">
+          <div className="relative z-10 font-sans text-xs text-muted-foreground">
             © {new Date().getFullYear()} Zenner. All rights reserved.
           </div>
         </div>
@@ -119,9 +119,9 @@ export function Register() {
               <img 
                 src={resolvedTheme === 'dark' ? logoLight : logoBlue} 
                 alt="Zenner Logo" 
-                className="h-14 w-14 rounded-2xl shadow-md border border-border/50 mb-2"
+                className="h-14 w-14 rounded-2xl shadow-md border border-border mb-2 grayscale contrast-125"
               />
-              <h2 className="font-outfit text-3xl font-extrabold text-primary">
+              <h2 className="font-sans text-3xl font-extrabold text-foreground">
                 Zenner
               </h2>
               <p className="text-muted-foreground text-sm font-medium">
@@ -130,7 +130,7 @@ export function Register() {
             </div>
 
             <div className="space-y-2 text-center lg:text-left">
-              <h1 className="text-3xl font-bold font-outfit tracking-tight">{t('auth.signup')}</h1>
+              <h1 className="text-3xl font-bold font-sans tracking-tight">{t('auth.signup')}</h1>
               <p className="text-sm text-muted-foreground">
                 {t('common.welcome')}
               </p>
@@ -143,7 +143,7 @@ export function Register() {
             )}
 
             {successMsg && (
-              <div className="p-3 text-sm text-emerald-600 bg-emerald-500/10 rounded-lg font-medium border border-emerald-500/20 animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="p-3 text-sm text-foreground bg-muted rounded-lg font-sans font-medium border border-border animate-in fade-in slide-in-from-top-1 duration-200">
                 {successMsg}
               </div>
             )}
@@ -218,7 +218,7 @@ export function Register() {
               {t('auth.alreadyHaveAccount')}{' '}
               <Link 
                 to="/login" 
-                className="text-primary hover:underline font-semibold"
+                className="text-foreground hover:underline font-bold"
                 tabIndex={6}
               >
                 {t('auth.login')}

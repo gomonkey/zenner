@@ -94,15 +94,13 @@ export function EisenhowerMatrix({
 			scheduleColumnHelper.accessor('task', {
 				header: () => t('home.taskTodo'),
 				cell: (info) => (
-					<span className="text-foreground font-medium">
-						{info.getValue()}
-					</span>
+					<span className="text-foreground font-medium">{info.getValue()}</span>
 				),
 			}),
 			scheduleColumnHelper.accessor('when', {
 				header: () => t('home.when'),
 				cell: (info) => (
-					<span className="text-muted-foreground font-mono text-[11px] bg-muted/60 px-2 py-0.5 rounded-md">
+					<span className="text-muted-foreground font-sans text-[10px] font-medium bg-muted/60 px-2 py-0.5 rounded-md border border-border/40">
 						{info.getValue()}
 					</span>
 				),
@@ -123,15 +121,13 @@ export function EisenhowerMatrix({
 			delegateColumnHelper.accessor('task', {
 				header: () => t('home.taskDelegate'),
 				cell: (info) => (
-					<span className="text-foreground font-medium">
-						{info.getValue()}
-					</span>
+					<span className="text-foreground font-medium">{info.getValue()}</span>
 				),
 			}),
 			delegateColumnHelper.accessor('who', {
 				header: () => t('home.whoCanDoIt'),
 				cell: (info) => (
-					<span className="text-primary font-medium text-[11px] bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+					<span className="text-foreground font-sans text-[10px] bg-muted px-2 py-0.5 rounded-md border border-border font-medium">
 						{info.getValue()}
 					</span>
 				),
@@ -173,19 +169,19 @@ export function EisenhowerMatrix({
 			typeof useReactTable<DoTask | ScheduleTask | DelegateTask | DeleteTask>
 		>,
 		title: string,
-		tagColor: string,
+		indicator: React.ReactNode,
 		itemCount: number,
 	) => (
 		<div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden select-none">
 			{/* Quadrant Sub-header */}
 			<div className="flex items-center justify-between pb-1.5 mb-1 border-b border-border/50 flex-shrink-0">
 				<div className="flex items-center gap-1.5">
-					<span className={`w-2 h-2 rounded-full ${tagColor}`} />
-					<span className="text-[11px] font-bold tracking-wider uppercase text-foreground">
+					{indicator}
+					<span className="text-[10px] font-sans font-bold tracking-wider uppercase text-foreground">
 						{title}
 					</span>
 				</div>
-				<span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-muted/70 text-muted-foreground font-semibold">
+				<span className="text-[10px] font-sans px-1.5 py-0.2 rounded bg-muted text-muted-foreground font-semibold border border-border/40">
 					{itemCount}
 				</span>
 			</div>
@@ -242,7 +238,7 @@ export function EisenhowerMatrix({
 					{renderQuadrant(
 						doTable as never,
 						t('home.taskDo') || 'Làm ngay (Do)',
-						'bg-primary',
+						<span className="w-2 h-2 rounded-full bg-foreground shadow-xs shrink-0" />,
 						matrix.do.length,
 					)}
 				</div>
@@ -252,7 +248,7 @@ export function EisenhowerMatrix({
 					{renderQuadrant(
 						scheduleTable as never,
 						t('home.taskTodo') || 'Lên lịch (Schedule)',
-						'bg-amber-500',
+						<span className="w-2 h-2 rounded-full border-1.5 border-foreground bg-transparent shrink-0" />,
 						matrix.schedule.length,
 					)}
 				</div>
@@ -264,7 +260,7 @@ export function EisenhowerMatrix({
 					{renderQuadrant(
 						delegateTable as never,
 						t('home.taskDelegate') || 'Ủy quyền (Delegate)',
-						'bg-sky-500',
+						<span className="w-2 h-2 rounded-xs bg-muted-foreground shrink-0" />,
 						matrix.delegate.length,
 					)}
 				</div>
@@ -274,7 +270,7 @@ export function EisenhowerMatrix({
 					{renderQuadrant(
 						deleteTable as never,
 						t('home.taskDelete') || 'Loại bỏ (Delete)',
-						'bg-destructive',
+						<span className="w-2 h-2 rounded-full border border-dashed border-foreground/70 shrink-0" />,
 						matrix.delete.length,
 					)}
 				</div>

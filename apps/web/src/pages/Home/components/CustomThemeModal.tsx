@@ -226,7 +226,7 @@ export function CustomThemeModal({
             value={jsonText}
             onChange={(e) => handleJsonChange(e.target.value)}
             placeholder={`{\n  "id": "my-ocean-theme",\n  "name": "Ocean Breeze",\n  "plannerWrapper": "...",\n  ...\n}`}
-            className="flex-1 w-full min-h-[200px] p-3 rounded-xl border border-border/80 bg-background/70 font-mono text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary shadow-zen-inner resize-y leading-relaxed"
+            className="flex-1 w-full min-h-[200px] p-3 rounded-xl border border-border/80 bg-background/70 font-sans text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary shadow-zen-inner resize-y leading-relaxed"
             spellCheck={false}
           />
 

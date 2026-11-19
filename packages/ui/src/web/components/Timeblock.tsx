@@ -135,34 +135,34 @@ export function Timeblock({
               // Sự kiện xếp trên 1 hàng ngang nếu chiều cao từ 1 giờ (48px) trở xuống để không bị tràn chữ
               const isSingleRow = pos.height <= 48;
 
-              // Màu nền sự kiện theo kiểu Bold sắc nét (solid background, chữ tương phản cao, không phụ thuộc viền)
+              // Monochrome sophisticated event colors with high contrast and architectural depth
               const getModernMinimalColor = (rawColor?: string) => {
                 if (!rawColor) {
-                  return 'bg-zinc-700 hover:bg-zinc-600 text-white shadow-xs';
+                  return 'bg-zinc-800 dark:bg-zinc-200 text-zinc-50 dark:text-zinc-900 shadow-xs hover:opacity-90';
                 }
 
                 const c = rawColor.toLowerCase();
 
+                if (c.includes('primary')) {
+                  return 'bg-foreground text-background font-semibold hover:opacity-90 shadow-xs';
+                }
                 if (c.includes('sky') || c.includes('blue') || c.includes('cyan')) {
-                  return 'bg-sky-500 hover:bg-sky-600 text-white shadow-xs';
+                  return 'bg-card text-foreground border border-border hover:border-foreground shadow-xs';
                 }
                 if (c.includes('emerald') || c.includes('green') || c.includes('teal')) {
-                  return 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs';
+                  return 'bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900 shadow-xs hover:opacity-90';
                 }
                 if (c.includes('amber') || c.includes('yellow') || c.includes('orange')) {
-                  return 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs';
+                  return 'bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-border shadow-xs hover:opacity-90';
                 }
                 if (c.includes('purple') || c.includes('violet') || c.includes('indigo')) {
-                  return 'bg-violet-600 hover:bg-violet-700 text-white shadow-xs';
+                  return 'bg-muted/90 text-foreground border-l-4 border-l-foreground border-y border-r border-border shadow-xs';
                 }
                 if (c.includes('rose') || c.includes('pink') || c.includes('red')) {
-                  return 'bg-rose-500 hover:bg-rose-600 text-white shadow-xs';
-                }
-                if (c.includes('primary')) {
-                  return 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs';
+                  return 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border border-border shadow-xs';
                 }
 
-                return 'bg-zinc-700 hover:bg-zinc-600 text-white shadow-xs';
+                return 'bg-zinc-800 dark:bg-zinc-200 text-zinc-50 dark:text-zinc-900 shadow-xs hover:opacity-90';
               };
 
               const modernColorClass = getModernMinimalColor(event.color);
@@ -259,14 +259,14 @@ export function Timeblock({
               );
             })}
 
-            {/* Vạch chỉ giờ hiện tại (Current Time Marker Line) */}
+            {/* Vạch chỉ giờ hiện tại (Current Time Marker Line - Monochrome Minimalist) */}
             {currentTimePosition !== null && (
               <div 
                 className="absolute left-0 right-0 flex items-center z-20 pointer-events-none"
                 style={{ top: `${currentTimePosition}px` }}
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)] -ml-1 flex-shrink-0 ring-2 ring-background" />
-                <div className="flex-1 h-[2px] bg-rose-500/90 shadow-xs" />
+                <div className="w-2.5 h-2.5 rounded-full bg-foreground shadow-xs -ml-1 flex-shrink-0 ring-2 ring-background" />
+                <div className="flex-1 h-[1.5px] bg-foreground/90 shadow-xs" />
               </div>
             )}
 

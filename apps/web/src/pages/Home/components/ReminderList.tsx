@@ -38,7 +38,7 @@ export function ReminderList({
 				<span className="text-xs font-bold uppercase tracking-wider text-foreground">
 					{titleLabel} ({translatedWeek})
 				</span>
-				<span className="text-[11px] font-mono font-medium text-muted-foreground">
+				<span className="text-[11px] font-sans font-medium text-muted-foreground">
 					{completedCount}/{reminders.length} hoàn thành
 				</span>
 			</div>
