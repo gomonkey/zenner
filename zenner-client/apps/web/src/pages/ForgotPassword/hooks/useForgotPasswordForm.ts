@@ -13,12 +13,12 @@ export function useForgotPasswordForm() {
     setSuccessMsg('');
 
     if (!email) {
-      setErrorMsg(t('auth.emailRequired', { defaultValue: 'Vui lòng nhập email.' }));
+      setErrorMsg(t('auth.emailRequired', { defaultValue: 'Please enter your email.' }));
       return;
     }
 
     // Mock API call to send reset password link
-    setSuccessMsg(t('auth.resetLinkSentSuccess', { defaultValue: 'Một liên kết khôi phục mật khẩu đã được gửi đến email của bạn.' }));
+    setSuccessMsg(t('auth.resetLinkSentSuccess', { defaultValue: 'A password reset link has been sent to your email.' }));
   };
 
   return {

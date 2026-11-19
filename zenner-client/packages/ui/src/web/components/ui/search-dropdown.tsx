@@ -31,9 +31,9 @@ export function SearchDropdown({
   value: controlledValue,
   defaultValue = "",
   onChange,
-  placeholder = "Chọn một mục...",
-  searchPlaceholder = "Tìm kiếm...",
-  emptyMessage = "Không có kết quả phù hợp",
+  placeholder = "Select an item...",
+  searchPlaceholder = "Search...",
+  emptyMessage = "No matching results",
   disabled = false,
   clearable = true,
   className,
@@ -178,7 +178,7 @@ export function SearchDropdown({
               tabIndex={0}
               onClick={handleClear}
               className="rounded-md p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Xóa lựa chọn"
+              aria-label="Clear selection"
             >
               <X className="size-3.5" />
             </span>

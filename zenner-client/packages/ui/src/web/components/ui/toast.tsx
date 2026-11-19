@@ -144,7 +144,7 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
           type="button"
           onClick={() => onDismiss(item.id)}
           className="rounded-lg p-1 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors -mr-1 -mt-1"
-          aria-label="Đóng thông báo"
+          aria-label="Close toast notification"
         >
           <X className="size-4" />
         </button>

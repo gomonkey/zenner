@@ -18,12 +18,12 @@ export function useRegisterForm() {
     setSuccessMsg('');
 
     if (password !== confirmPassword) {
-      setErrorMsg(t('auth.passwordMismatch', { defaultValue: 'Mật khẩu xác nhận không khớp.' }));
+      setErrorMsg(t('auth.passwordMismatch', { defaultValue: 'Passwords do not match.' }));
       return;
     }
 
     // Mock registration API call success
-    setSuccessMsg(t('auth.registerSuccess', { defaultValue: 'Đăng ký thành công! Đang tự động đăng nhập...' }));
+    setSuccessMsg(t('auth.registerSuccess', { defaultValue: 'Registration successful! Logging in automatically...' }));
     
     setTimeout(() => {
       login('mock_token_register_123');

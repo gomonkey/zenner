@@ -1,17 +1,17 @@
 export interface RawEvent {
-	startTime: string; // Định dạng "HH:mm"
-	endTime: string; // Định dạng "HH:mm"
+	startTime: string; // Format "HH:mm"
+	endTime: string; // Format "HH:mm"
 }
 
 export interface PositionedEvent {
-	top: number; // Vị trí px từ phía trên
-	height: number; // Chiều cao px của event
-	width: number; // Chiều rộng tính bằng % (0-100)
-	left: number; // Vị trí px lệch trái tính bằng % (0-100)
+	top: number; // Top position in px
+	height: number; // Event height in px
+	width: number; // Width as a percentage (0-100)
+	left: number; // Left offset as a percentage (0-100)
 }
 
 /**
- * Chuyển đổi định dạng giờ "HH:mm" thành số phút kể từ đầu ngày.
+ * Converts a time string formatted as "HH:mm" to total minutes from the beginning of the day.
  */
 export function parseTimeToMinutes(timeStr: string): number {
 	const [hours, minutes] = timeStr.split(':').map(Number);
@@ -20,12 +20,12 @@ export function parseTimeToMinutes(timeStr: string): number {
 }
 
 /**
- * Thuật toán tính toán vị trí tuyệt đối và chia cột cho các sự kiện trùng giờ (Google Calendar style).
- * Trả về mảng PositionedEvent tương ứng với thứ tự ban đầu của mảng events đầu vào.
+ * Calculates absolute positions and column distribution for overlapping calendar events (Google Calendar style).
+ * Returns an array of PositionedEvent matching the original order of the input events array.
  *
- * @param events Danh sách các sự kiện cần tính toán vị trí.
- * @param startHour Giờ bắt đầu hiển thị trên lịch (mặc định là 7h sáng).
- * @param hourHeight Chiều cao hiển thị của một tiếng (mặc định là 60px).
+ * @param events List of events to compute positions for.
+ * @param startHour Calendar display start hour (defaults to 7 AM).
+ * @param hourHeight Display height of one hour in pixels (defaults to 60px).
  */
 export function calculateEventPositions(
 	events: RawEvent[],
@@ -40,7 +40,7 @@ export function calculateEventPositions(
 		end: number;
 	}
 
-	// Chuẩn bị dữ liệu và sắp xếp theo thời gian bắt đầu
+	// Prepare data and sort by start time
 	const sortedEvents: ExtendedEvent[] = [...events]
 		.map((event, index) => ({
 			...event,
@@ -52,12 +52,12 @@ export function calculateEventPositions(
 
 	const positioned: (PositionedEvent & { originalIndex: number })[] = [];
 
-	// Gom các sự kiện bị trùng giờ (overlap) vào các nhóm (groups)
+	// Group overlapping events into clusters
 	const groups: ExtendedEvent[][] = [];
 	for (const event of sortedEvents) {
 		let placed = false;
 		for (const group of groups) {
-			// Nếu sự kiện này giao thời gian với bất kỳ sự kiện nào trong nhóm, cho vào nhóm đó
+			// Place event in group if it overlaps with any event in this group
 			const hasOverlap = group.some(
 				(e) =>
 					(event.start >= e.start && event.start < e.end) ||
@@ -74,7 +74,7 @@ export function calculateEventPositions(
 		}
 	}
 
-	// Trong mỗi nhóm, chia các sự kiện vào các cột dọc (columns) để không bị đè khuất nhau
+	// Within each group, assign events into columns so they do not overlap
 	for (const group of groups) {
 		const columns: ExtendedEvent[][] = [];
 		for (const event of group) {
@@ -83,7 +83,7 @@ export function calculateEventPositions(
 				if (!columns[colIdx]) {
 					columns[colIdx] = [];
 				}
-				// Kiểm tra xem cột hiện tại đã có sự kiện nào trùng giờ chưa
+				// Check whether current column has any conflicting event
 				const hasOverlapInCol = columns[colIdx].some(
 					(e) =>
 						(event.start >= e.start && event.start < e.end) ||
@@ -97,15 +97,15 @@ export function calculateEventPositions(
 			}
 		}
 
-		// Tính toán chiều rộng (width) và vị trí lệch trái (left) dựa trên tổng số cột
+		// Calculate width and left offset based on total columns in the group
 		const totalCols = columns.length;
 		for (let colIdx = 0; colIdx < totalCols; colIdx++) {
 			for (const event of columns[colIdx]) {
 				const offsetMinutes = event.start - startOfDayMinutes;
 				const top = Math.max(0, (offsetMinutes / 60) * hourHeight);
 
-				// Độ dài sự kiện
-				const duration = Math.max(15, event.end - event.start); // Tối thiểu 15 phút để dễ click
+				// Event duration
+				const duration = Math.max(15, event.end - event.start); // Minimum 15 minutes for clickability
 				const height = (duration / 60) * hourHeight;
 
 				const width = 100 / totalCols;
@@ -122,7 +122,7 @@ export function calculateEventPositions(
 		}
 	}
 
-	// Sắp xếp lại đúng theo thứ tự ban đầu của mảng input và loại bỏ thông tin originalIndex
+	// Restore original array order and strip originalIndex
 	return positioned
 		.sort((a, b) => a.originalIndex - b.originalIndex)
 		.map(({ top, height, width, left }) => ({ top, height, width, left }));

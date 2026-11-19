@@ -72,7 +72,7 @@ export function Toolbar({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [themes, setThemes] = useState<ThemeConfig[]>(() => getThemeList());
 
-  // Lắng nghe sự kiện cập nhật theme để refresh danh sách
+  // Listen for theme update events to refresh theme list
   useEffect(() => {
     const handleThemeUpdate = () => {
       setThemes(getThemeList());
@@ -86,7 +86,7 @@ export function Toolbar({
 
   const handleDeleteTheme = (e: React.MouseEvent, themeId: string) => {
     e.stopPropagation();
-    if (window.confirm('Bạn có chắc chắn muốn xóa theme tùy biến này?')) {
+    if (window.confirm('Are you sure you want to delete this custom theme?')) {
       deleteCustomTheme(themeId);
       if (themeBoost === themeId) {
         toggleThemeBoost('default');
@@ -115,7 +115,7 @@ export function Toolbar({
           {resolvedTheme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </Button>
         
-        {/* Nút Setting có Dropdown */}
+        {/* Settings button with dropdown */}
         <div className="relative">
           <Button
             variant="ghost"
@@ -129,12 +129,12 @@ export function Toolbar({
 
           {isOpenSettings && (
             <>
-              {/* Overlay vô hình để click ra ngoài đóng menu */}
+              {/* Invisible overlay to close menu on outside click */}
               <div className="fixed inset-0 z-40" onClick={() => setIsOpenSettings(false)} />
               
               {/* Dropdown Menu Box */}
               <div className={themeConfig.dropdownMenu}>
-                {/* Header với nút Thêm Theme (+) */}
+                {/* Header with Add Theme (+) button */}
                 <div className="flex items-center justify-between px-2 py-1 select-none border-b border-border/50 pb-1.5 mb-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     Boost Theme
@@ -147,14 +147,14 @@ export function Toolbar({
                       setIsOpenSettings(false);
                     }}
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors p-1 rounded-lg hover:bg-muted"
-                    title="Thêm Theme mới bằng file JSON"
+                    title="Add new theme from JSON file"
                   >
                     <Plus className="size-3.5" />
-                    <span>Thêm theme</span>
+                    <span>Add theme</span>
                   </button>
                 </div>
                 
-                {/* Render danh sách theme động */}
+                {/* Render dynamic theme list */}
                 <div className="flex flex-col gap-0.5 max-h-48 overflow-y-auto">
                   {themes.map((themeItem) => {
                     const isActive = themeBoost === themeItem.id;
@@ -176,13 +176,13 @@ export function Toolbar({
                           {isActive && <CheckIcon />}
                         </button>
 
-                        {/* Nút xóa dành cho custom themes */}
+                        {/* Delete button for custom themes */}
                         {isCustom && (
                           <button
                             type="button"
                             onClick={(e) => handleDeleteTheme(e, themeItem.id)}
                             className="p-1.5 mr-1 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                            title="Xóa theme này"
+                            title="Delete this theme"
                           >
                             <Trash2 className="size-3" />
                           </button>
@@ -192,7 +192,7 @@ export function Toolbar({
                   })}
                 </div>
 
-                {/* Nút dấu cộng nổi bật dưới đáy menu */}
+                {/* Add theme button at bottom of menu */}
                 <button
                   type="button"
                   onClick={() => {
@@ -202,7 +202,7 @@ export function Toolbar({
                   className="mt-1 flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-xl text-[11px] font-medium text-primary hover:bg-primary/10 border border-dashed border-primary/30 transition-colors"
                 >
                   <Plus className="size-3.5" />
-                  <span>Tạo Theme từ JSON...</span>
+                  <span>Create theme from JSON...</span>
                 </button>
               </div>
             </>
@@ -222,7 +222,7 @@ export function Toolbar({
         </Button>
       </div>
 
-      {/* Modal Tạo/Nhập Theme Custom bằng file JSON */}
+      {/* Create/Import Custom Theme Modal via JSON file */}
       <CustomThemeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

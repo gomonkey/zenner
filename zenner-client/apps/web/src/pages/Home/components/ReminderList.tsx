@@ -23,7 +23,7 @@ export function ReminderList({
 	titleLabel,
 	themeConfig,
 }: ReminderListProps) {
-	// Dịch động nhãn tuần trong tiêu đề nhắc nhở
+	// Dynamically translate week label in reminder header
 	const translatedWeek =
 		currentLanguage === 'vi'
 			? selectedWeek.replace('Week', 'Tuần')
@@ -33,17 +33,17 @@ export function ReminderList({
 
 	return (
 		<div className={themeConfig.reminderList}>
-			{/* Tiêu đề & Chỉ số hoàn thành */}
+			{/* Title & Completion metric */}
 			<div className="flex items-center justify-between pb-1 border-b border-border/50 flex-shrink-0 select-none">
 				<span className="text-xs font-bold uppercase tracking-wider text-foreground">
 					{titleLabel} ({translatedWeek})
 				</span>
 				<span className="text-[11px] font-sans font-medium text-muted-foreground">
-					{completedCount}/{reminders.length} hoàn thành
+					{completedCount}/{reminders.length} {currentLanguage === 'vi' ? 'hoàn thành' : 'completed'}
 				</span>
 			</div>
 
-			{/* Hiển thị 2 cột trên desktop: Không bao giờ bị cắt hay phải cuộn trang */}
+			{/* 2-column grid layout */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 pt-0.5">
 				{reminders.map((rem) => {
 					const isYes = rem.value === 'Y';
@@ -65,7 +65,7 @@ export function ReminderList({
 								• {rem.label}
 							</span>
 
-							{/* Nút toggle Y/N được cấu hình hoàn toàn từ theme config */}
+							{/* Y/N toggle buttons configured via theme config */}
 							<div className={themeConfig.reminderToggleContainer}>
 								<button
 									onClick={() => onToggleReminder(rem.id)}

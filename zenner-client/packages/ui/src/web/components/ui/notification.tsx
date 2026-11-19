@@ -35,7 +35,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
           "hover:bg-muted/70 hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
           className
         )}
-        aria-label={`Thông báo ${unreadCount > 0 ? `(${unreadCount} chưa đọc)` : ""}`}
+        aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ""}`}
         {...props}
       >
         <Bell className="size-4.5" />
@@ -46,7 +46,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
           </span>
         )}
         {unreadCount > 0 && unreadCount <= 99 && (
-          <span className="sr-only">{unreadCount} thông báo mới</span>
+          <span className="sr-only">{unreadCount} new notifications</span>
         )}
       </button>
     )
@@ -123,7 +123,7 @@ export const NotificationItem = React.forwardRef<HTMLDivElement, NotificationIte
                 e.stopPropagation()
                 onMarkAsRead(id)
               }}
-              title="Đánh dấu đã đọc"
+              title="Mark as read"
               className="rounded-md p-1 text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
             >
               <Check className="size-3.5" />
@@ -136,7 +136,7 @@ export const NotificationItem = React.forwardRef<HTMLDivElement, NotificationIte
                 e.stopPropagation()
                 onDelete(id)
               }}
-              title="Xóa thông báo"
+              title="Delete notification"
               className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
             >
               <Trash2 className="size-3.5" />
@@ -166,8 +166,8 @@ export interface NotificationListProps {
 
 export function NotificationList({
   notifications,
-  title = "Thông báo",
-  emptyMessage = "Tâm hồn tĩnh lặng, không có thông báo mới.",
+  title = "Notifications",
+  emptyMessage = "No new notifications.",
   onMarkAllAsRead,
   onClearAll,
   onMarkAsRead,
@@ -202,7 +202,7 @@ export function NotificationList({
               onClick={onMarkAllAsRead}
               className="text-[11px] text-primary hover:underline font-medium"
             >
-              Đã đọc tất cả
+              Mark all as read
             </button>
           )}
           {notifications.length > 0 && onClearAll && (
@@ -211,7 +211,7 @@ export function NotificationList({
               onClick={onClearAll}
               className="text-[11px] text-muted-foreground hover:text-destructive transition-colors"
             >
-              Xóa hết
+              Clear all
             </button>
           )}
         </div>

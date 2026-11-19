@@ -18,7 +18,7 @@
   grid-template-rows: 1fr 1fr !important;
 }
 
-/* Đường kẻ dọc ngăn ô trái/phải trong lưới */
+/* Vertical separator between left and right matrix cells */
 .matrix-cell-left {
   border-right: 1px solid hsl(var(--border));
 }
