@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.timeblock_items (
+CREATE TABLE timeblock_items (
     id UUID PRIMARY KEY,
     timeblock_id UUID NOT NULL,
     detail TEXT NOT NULL,
@@ -8,6 +8,6 @@ CREATE TABLE zenner_core.timeblock_items (
 
     CONSTRAINT fk_timeblock_items_timeblock
         FOREIGN KEY (timeblock_id)
-        REFERENCES zenner_core.timeblocks (id)
+        REFERENCES timeblocks (id)
         ON DELETE CASCADE
 );

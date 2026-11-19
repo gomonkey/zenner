@@ -5,7 +5,12 @@ import {
 	flexRender,
 	createColumnHelper,
 } from '@tanstack/react-table';
-import { DoTask, ScheduleTask, DelegateTask, DeleteTask } from '../mockData';
+import {
+	MatrixDoTask as DoTask,
+	MatrixScheduleTask as ScheduleTask,
+	MatrixDelegateTask as DelegateTask,
+	MatrixDeleteTask as DeleteTask,
+} from '@zenner/core/schema/day.schema';
 import { ThemeConfig } from '@zenner/core/theme/themeConfig';
 
 interface EisenhowerMatrixProps {
@@ -219,7 +224,7 @@ export function EisenhowerMatrix({
 					</tbody>
 				</table>
 
-				{/* Planner Dotted Lines: lấp đầy khoảng trống tự nhiên theo phong cách sổ tay Zen */}
+				{/* Planner dotted lines: natural paper planner aesthetic */}
 				<div className="flex flex-col py-1 pointer-events-none opacity-40 dark:opacity-20">
 					<div className="py-2.5 border-b border-dashed border-border" />
 					<div className="py-2.5 border-b border-dashed border-border" />
@@ -231,45 +236,45 @@ export function EisenhowerMatrix({
 
 	return (
 		<div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-			{/* Lưới 2x2 tối giản */}
+			{/* Minimalist 2x2 grid */}
 			<div className={themeConfig.matrixContainer}>
-				{/* Ô 1: DO (trái trên) */}
+				{/* Quadrant 1: DO (top left) */}
 				<div className={`${themeConfig.matrixCell} matrix-cell-left`}>
 					{renderQuadrant(
 						doTable as never,
-						t('home.taskDo') || 'Làm ngay (Do)',
+						t('home.taskDo') || 'Do (urgent & important)',
 						<span className="w-2 h-2 rounded-full bg-foreground shadow-xs shrink-0" />,
 						matrix.do.length,
 					)}
 				</div>
 
-				{/* Ô 2: SCHEDULE (phải trên) */}
+				{/* Quadrant 2: SCHEDULE (top right) */}
 				<div className={themeConfig.matrixCell}>
 					{renderQuadrant(
 						scheduleTable as never,
-						t('home.taskTodo') || 'Lên lịch (Schedule)',
+						t('home.taskTodo') || 'Schedule (not urgent & important)',
 						<span className="w-2 h-2 rounded-full border-1.5 border-foreground bg-transparent shrink-0" />,
 						matrix.schedule.length,
 					)}
 				</div>
 
-				{/* Ô 3: DELEGATE (trái dưới) */}
+				{/* Quadrant 3: DELEGATE (bottom left) */}
 				<div
 					className={`${themeConfig.matrixCell} matrix-cell-left matrix-cell-divider`}
 				>
 					{renderQuadrant(
 						delegateTable as never,
-						t('home.taskDelegate') || 'Ủy quyền (Delegate)',
+						t('home.taskDelegate') || 'Delegate (urgent & not important)',
 						<span className="w-2 h-2 rounded-xs bg-muted-foreground shrink-0" />,
 						matrix.delegate.length,
 					)}
 				</div>
 
-				{/* Ô 4: DELETE (phải dưới) */}
+				{/* Quadrant 4: DELETE (bottom right) */}
 				<div className={`${themeConfig.matrixCell} matrix-cell-divider`}>
 					{renderQuadrant(
 						deleteTable as never,
-						t('home.taskDelete') || 'Loại bỏ (Delete)',
+						t('home.taskDelete') || 'Delete (not urgent & not important)',
 						<span className="w-2 h-2 rounded-full border border-dashed border-foreground/70 shrink-0" />,
 						matrix.delete.length,
 					)}

@@ -45,7 +45,7 @@ export interface ThemeConfig {
   dropdownItemInactive: string;
 }
 
-// Interface phục vụ riêng cho gói UI Timeblock độc lập
+// Interface specifically for standalone Timeblock UI package
 export interface TimeblockThemeConfig {
   id: string;
   timeblockContainer: string;
@@ -56,20 +56,20 @@ export interface TimeblockThemeConfig {
   timeblockEventCard: string;
 }
 
-// Cast array defaultThemes thành kiểu dữ liệu cụ thể
+// Cast defaultThemes array to concrete type
 const defaultThemesCast = defaultThemes as ThemeConfig[];
 
-// Fallback theme mặc định
+// Default fallback theme
 export const defaultTheme = defaultThemesCast[0];
 
-// Key lưu trữ localStorage
+// Storage key for localStorage
 export const CUSTOM_THEMES_STORAGE_KEY = 'zenner-boost-themes';
 
-// Hàm đọc danh sách theme gộp từ JSON mặc định, localStorage hoặc custom JSON đầu vào
+// Merges default themes, custom themes from localStorage, and optional injected JSON
 export function getThemeList(customThemesJson?: string): ThemeConfig[] {
   const defaults = defaultThemesCast;
 
-  // 1. Nạp JSON trực tiếp (Dành cho Mobile load từ AsyncStorage/DB hoặc Desktop đọc file)
+  // 1. Direct JSON input (useful for mobile via AsyncStorage/DB or desktop file loading)
   if (customThemesJson) {
     try {
       const customThemes = JSON.parse(customThemesJson) as ThemeConfig[];
@@ -80,11 +80,11 @@ export function getThemeList(customThemesJson?: string): ThemeConfig[] {
         return [...defaults, ...filteredCustoms];
       }
     } catch (e) {
-      console.error("Lỗi parse customThemesJson trong getThemeList:", e);
+      console.error("Failed to parse customThemesJson in getThemeList:", e);
     }
   }
 
-  // 2. Fallback sang localStorage nếu chạy trên Web Browser
+  // 2. Fallback to localStorage in web browser environment
   if (typeof window !== 'undefined' && window.localStorage) {
     try {
       const rawThemes = localStorage.getItem(CUSTOM_THEMES_STORAGE_KEY);
@@ -98,7 +98,7 @@ export function getThemeList(customThemesJson?: string): ThemeConfig[] {
         }
       }
     } catch (err) {
-      console.error("Lỗi khi đọc zenner-boost-themes từ localStorage:", err);
+      console.error("Failed to read zenner-boost-themes from localStorage:", err);
     }
   }
 
@@ -106,7 +106,7 @@ export function getThemeList(customThemesJson?: string): ThemeConfig[] {
 }
 
 /**
- * Lưu theme mới do người dùng tạo/import từ JSON plugin
+ * Saves a new custom theme created or imported from a JSON plugin
  */
 export function saveCustomTheme(input: Partial<ThemeConfig>): {
   success: boolean;
@@ -114,21 +114,21 @@ export function saveCustomTheme(input: Partial<ThemeConfig>): {
   theme?: ThemeConfig;
 } {
   if (!input || typeof input !== 'object') {
-    return { success: false, error: 'Dữ liệu JSON không hợp lệ' };
+    return { success: false, error: 'Invalid JSON data' };
   }
 
   const id = input.id?.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
   if (!id) {
-    return { success: false, error: 'Theme cần có trường "id" hợp lệ' };
+    return { success: false, error: 'Theme requires a valid "id" field' };
   }
 
   if (id === 'default') {
-    return { success: false, error: 'Không thể ghi đè theme mặc định ("default")' };
+    return { success: false, error: 'Cannot overwrite default theme ("default")' };
   }
 
   const name = input.name?.trim() || id;
 
-  // Kết hợp với theme mặc định để tự động bổ sung các trường còn thiếu nếu JSON chỉ định nghĩa một phần
+  // Merge with default theme to fill any missing properties
   const completeTheme: ThemeConfig = {
     ...defaultTheme,
     ...input,
@@ -145,26 +145,26 @@ export function saveCustomTheme(input: Partial<ThemeConfig>): {
         if (!Array.isArray(list)) list = [];
       }
 
-      // Xóa bản cũ nếu trùng id rồi thêm bản mới
+      // Remove existing item if id matches, then append new theme
       list = list.filter((t) => t.id !== id);
       list.push(completeTheme);
 
       localStorage.setItem(CUSTOM_THEMES_STORAGE_KEY, JSON.stringify(list));
 
-      // Bắn sự kiện window để các component lắng nghe cập nhật ngay lập tức
+      // Dispatch window event so listening components update immediately
       window.dispatchEvent(new CustomEvent('zenner:theme-updated', { detail: completeTheme }));
 
       return { success: true, theme: completeTheme };
     } catch (e) {
-      return { success: false, error: 'Không thể lưu vào localStorage: ' + String(e) };
+      return { success: false, error: 'Failed to save to localStorage: ' + String(e) };
     }
   }
 
-  return { success: false, error: 'Môi trường không hỗ trợ localStorage' };
+  return { success: false, error: 'Environment does not support localStorage' };
 }
 
 /**
- * Xóa custom theme đã tạo
+ * Deletes a saved custom theme
  */
 export function deleteCustomTheme(themeId: string): boolean {
   if (themeId === 'default') return false;
@@ -183,7 +183,7 @@ export function deleteCustomTheme(themeId: string): boolean {
       window.dispatchEvent(new CustomEvent('zenner:theme-updated', { detail: { id: themeId, deleted: true } }));
       return true;
     } catch (e) {
-      console.error('Lỗi khi xóa custom theme:', e);
+      console.error('Failed to delete custom theme:', e);
       return false;
     }
   }
@@ -191,7 +191,7 @@ export function deleteCustomTheme(themeId: string): boolean {
 }
 
 /**
- * Xuất mẫu file JSON plugin để người dùng dễ dàng tùy biến
+ * Exports a template JSON theme plugin for customization
  */
 export function getDefaultThemeTemplate(): string {
   const template: Partial<ThemeConfig> = {

@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.reminder_responses (
+CREATE TABLE reminder_responses (
     id UUID PRIMARY KEY,
     day_id UUID NOT NULL,
     reminder_id UUID NOT NULL,
@@ -8,12 +8,12 @@ CREATE TABLE zenner_core.reminder_responses (
 
     CONSTRAINT fk_reminder_responses_key
         FOREIGN KEY (day_id)
-        REFERENCES zenner_core.days (id)
+        REFERENCES days (id)
         ON DELETE CASCADE,
 
     CONSTRAINT fk_reminder_responses_reminder
         FOREIGN KEY (reminder_id)
-        REFERENCES zenner_core.reminders (id)
+        REFERENCES reminders (id)
         ON DELETE CASCADE,
 
     CONSTRAINT uq_reminder_response

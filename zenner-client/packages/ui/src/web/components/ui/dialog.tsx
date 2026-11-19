@@ -177,7 +177,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
                   type="button"
                   onClick={close}
                   className="absolute right-4 top-4 rounded-xl p-1.5 text-muted-foreground/70 hover:bg-muted hover:text-foreground transition-colors"
-                  aria-label="Đóng hộp thoại"
+                  aria-label="Close dialog"
                 >
                   <X className="size-4" />
                 </button>

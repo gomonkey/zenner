@@ -5,8 +5,8 @@ import { TimeblockThemeConfig } from '@zenner/core/theme/themeConfig';
 export interface TimeblockEvent extends RawEvent {
   id: string;
   title: string;
-  note?: string; // Ghi chú sự kiện (hiển thị thay thế khoảng thời gian)
-  color?: string; // Lớp CSS Tailwind cho nền, viền và màu chữ
+  note?: string; // Event note (optional alternative display)
+  color?: string; // Tailwind CSS classes for background, border, and text color
 }
 
 const defaultTimeblockTheme: TimeblockThemeConfig = {
@@ -41,22 +41,22 @@ export function Timeblock({
   const config = themeConfig || defaultTimeblockTheme;
   const isJournal = config.id === 'journal';
 
-  // Đồng bộ thời gian hiện tại để cập nhật vạch thời gian thực
+  // Sync current time to update real-time indicator line
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
-    }, 60000); // Cập nhật mỗi phút
+    }, 60000); // Update every minute
     return () => clearInterval(timer);
   }, []);
 
-  // Tính toán vị trí của các sự kiện
+  // Compute event layout positions
   const positionedEvents = useMemo(() => {
     return calculateEventPositions(events, startHour, hourHeight);
   }, [events, startHour, hourHeight]);
 
-  // Tạo trục giờ hiển thị
+  // Generate displayed hours axis
   const hours = useMemo(() => {
     const list = [];
     for (let h = startHour; h <= endHour; h++) {
@@ -67,7 +67,7 @@ export function Timeblock({
 
   const contentHeight = hours.length * hourHeight;
 
-  // Tính toán vị trí vạch giờ hiện tại
+  // Calculate current time line position
   const currentTimePosition = useMemo(() => {
     const hoursNow = now.getHours();
     const minutesNow = now.getMinutes();
@@ -82,7 +82,7 @@ export function Timeblock({
 
   return (
     <div className={`${config.timeblockContainer} font-sans`}>
-      {/* Header Lịch (Đã bỏ nhãn chế độ ngày) */}
+      {/* Schedule Header */}
       <div className={config.timeblockHeader}>
         <span className="font-sans font-bold text-foreground text-sm tracking-wider uppercase select-none">
           {title}
@@ -94,11 +94,11 @@ export function Timeblock({
         )}
       </div>
 
-      {/* Grid chứa lịch trình */}
+      {/* Schedule Grid */}
       <div className="flex-1 overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="flex relative" style={{ height: `${contentHeight}px` }}>
           
-          {/* Trục dọc hiển thị giờ (Time Axis) */}
+          {/* Vertical Time Axis */}
           <div className={config.timeblockTimeAxis}>
             {hours.map((hour) => (
               <div
@@ -106,7 +106,7 @@ export function Timeblock({
                 className="text-right pr-3 text-[11px] font-semibold text-muted-foreground/80 font-sans relative select-none tracking-tight"
                 style={{
                   height: `${hourHeight}px`,
-                  lineHeight: '22px', // Căn chỉnh văn bản lên đầu mốc giờ
+                  lineHeight: '22px', // Align text with top of hour mark
                 }}
               >
                 {hour.toString().padStart(2, '0')}:00
@@ -114,9 +114,9 @@ export function Timeblock({
             ))}
           </div>
 
-          {/* Lưới thời gian và Sự kiện (Grid Content) */}
+          {/* Time Grid and Events */}
           <div className="flex-1 relative bg-muted/5">
-            {/* Vẽ đường kẻ ngang phân cách mỗi giờ */}
+            {/* Horizontal grid line separating each hour */}
             {hours.map((_, idx) => (
               <div
                 key={`grid-line-${idx}`}
@@ -127,12 +127,12 @@ export function Timeblock({
               />
             ))}
 
-            {/* Render các Sự kiện */}
+            {/* Render Events */}
             {events.map((event, idx) => {
               const pos = positionedEvents[idx];
               if (!pos) return null;
 
-              // Sự kiện xếp trên 1 hàng ngang nếu chiều cao từ 1 giờ (48px) trở xuống để không bị tràn chữ
+              // Display event on a single row if height is 48px or less to prevent text overflow
               const isSingleRow = pos.height <= 48;
 
               // Monochrome sophisticated event colors with high contrast and architectural depth
@@ -168,7 +168,7 @@ export function Timeblock({
               const modernColorClass = getModernMinimalColor(event.color);
               const eventCardClass = `${config.timeblockEventCard} ${modernColorClass}`;
 
-              // Tính toán định dạng thời gian và khoảng thời lượng
+              // Calculate formatted time strings and durations
               const parseTime = (t: string) => {
                 const [hStr, mStr] = t.split(':');
                 const h = parseInt(hStr, 10);
@@ -218,7 +218,7 @@ export function Timeblock({
                   title={`${event.title} (${startFormatted} - ${endFormatted})`}
                 >
                   {isSingleRow ? (
-                    // Xếp ngang trên 1 hàng: Tiêu đề + Khung giờ (12:00 - 13:00) + Badge thời lượng (1h)
+                    // Single row: Title + Time range (12:00 - 13:00) + Duration badge (1h)
                     <div className="flex items-center justify-between gap-2 w-full min-w-0 h-full font-sans">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <span className="font-bold text-xs truncate">
@@ -235,7 +235,7 @@ export function Timeblock({
                       </span>
                     </div>
                   ) : (
-                    // Đủ từ 2 hàng trở lên (> 48px): Hiển thị nhiều tầng thông tin thoải mái
+                    // Multi-row (> 48px): Displays tiered information comfortably
                     <div className="flex flex-col gap-1 w-full min-w-0 font-sans">
                       <div className="flex items-start justify-between gap-1 w-full min-w-0">
                         <span className="font-bold text-xs tracking-tight leading-snug truncate">
@@ -259,7 +259,7 @@ export function Timeblock({
               );
             })}
 
-            {/* Vạch chỉ giờ hiện tại (Current Time Marker Line - Monochrome Minimalist) */}
+            {/* Current Time Indicator Line (Monochrome Minimalist) */}
             {currentTimePosition !== null && (
               <div 
                 className="absolute left-0 right-0 flex items-center z-20 pointer-events-none"

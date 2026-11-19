@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.reminders (
+CREATE TABLE reminders (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     content VARCHAR(255) NOT NULL UNIQUE,
@@ -7,6 +7,6 @@ CREATE TABLE zenner_core.reminders (
 
     CONSTRAINT fk_reminders_user
         FOREIGN KEY (user_id)
-        REFERENCES zenner_core.users (id)
+        REFERENCES users (id)
         ON DELETE CASCADE
 );

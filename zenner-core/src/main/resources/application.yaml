@@ -13,7 +13,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        default_schema: ${DATABASE_SCHEMA:zenner_core}
+        default_schema: ${DATABASE_SCHEMA:public}
         default_batch_fetch_size: 25
 
   datasource:
@@ -23,9 +23,9 @@ spring:
 
   flyway:
     enabled: true
-    default-schema: ${DATABASE_SCHEMA:zenner_core}
+    default-schema: ${DATABASE_SCHEMA:public}
     schemas:
-      - ${DATABASE_SCHEMA:zenner_core}
+      - ${DATABASE_SCHEMA:public}
     locations:
       - classpath:db/migration
 

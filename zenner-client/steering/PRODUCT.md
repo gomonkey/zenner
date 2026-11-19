@@ -236,7 +236,7 @@ Hooks & Stores Copy: If an asynchronous action in a custom hook or store throws 
 
 // ❌ INCORRECT (Hardcoded text)
 export function WelcomeWidget() {
-return <h1>Chào mừng bạn đã quay trở lại!</h1>;
+return <h1>Welcome back!</h1>;
 }
 
 // ✅ CORRECT (Uses translation hook)

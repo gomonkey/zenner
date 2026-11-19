@@ -49,19 +49,19 @@ export function CustomThemeModal({
     try {
       const parsed = JSON.parse(value);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        setErrorMsg('Dữ liệu JSON phải là một đối tượng (object { ... })');
+        setErrorMsg('JSON data must be an object ({ ... })');
         setParsedTheme(null);
         return;
       }
 
       if (!parsed.id) {
-        setErrorMsg('Thiếu trường "id" định danh (ví dụ: "id": "my-theme")');
+        setErrorMsg('Missing required "id" field (e.g., "id": "my-theme")');
         setParsedTheme(null);
         return;
       }
 
       if (parsed.id === 'default') {
-        setErrorMsg('Không thể dùng id "default" vì đã dành cho theme mặc định');
+        setErrorMsg('Cannot use id "default" because it is reserved for the default theme');
         setParsedTheme(null);
         return;
       }
@@ -69,12 +69,12 @@ export function CustomThemeModal({
       setErrorMsg(null);
       setParsedTheme(parsed);
     } catch (err) {
-      setErrorMsg('Cú pháp JSON không hợp lệ: ' + (err instanceof Error ? err.message : String(err)));
+      setErrorMsg('Invalid JSON syntax: ' + (err instanceof Error ? err.message : String(err)));
       setParsedTheme(null);
     }
   };
 
-  // Nạp file JSON từ máy
+  // Upload JSON file from device
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -90,13 +90,13 @@ export function CustomThemeModal({
     e.target.value = '';
   };
 
-  // Điền template mẫu sẵn
+  // Fill with default template
   const handleFillTemplate = () => {
     const template = getDefaultThemeTemplate();
     handleJsonChange(template);
   };
 
-  // Tải file template mẫu về máy
+  // Download template file to device
   const handleDownloadTemplate = () => {
     const template = getDefaultThemeTemplate();
     const blob = new Blob([template], { type: 'application/json' });
@@ -108,7 +108,7 @@ export function CustomThemeModal({
     URL.revokeObjectURL(url);
   };
 
-  // Sao chép template vào clipboard
+  // Copy template to clipboard
   const handleCopyTemplate = () => {
     const template = getDefaultThemeTemplate();
     navigator.clipboard.writeText(template);
@@ -116,13 +116,13 @@ export function CustomThemeModal({
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // Lưu theme
+  // Save theme
   const handleSave = () => {
     if (!parsedTheme) return;
 
     const result = saveCustomTheme(parsedTheme);
     if (!result.success || !result.theme) {
-      setErrorMsg(result.error || 'Có lỗi xảy ra khi lưu theme');
+      setErrorMsg(result.error || 'An error occurred while saving theme');
       return;
     }
 
@@ -142,16 +142,16 @@ export function CustomThemeModal({
             </div>
             <div>
               <DialogTitle className="text-base font-semibold">
-                Thêm Theme Tùy Biến (JSON Plugin)
+                Add Custom Theme (JSON Plugin)
               </DialogTitle>
               <DialogDescription className="text-xs">
-                Tải lên hoặc dán file JSON để tùy chỉnh toàn bộ giao diện theo ý muốn của bạn.
+                Upload or paste a JSON configuration to customize the entire planner UI.
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        {/* Toolbar phụ trợ: Tải file & Mẫu */}
+        {/* Helper Toolbar: File upload & Templates */}
         <div className="flex flex-wrap items-center justify-between gap-2 py-2 border-y border-border/60">
           <div className="flex items-center gap-2">
             <input
@@ -169,7 +169,7 @@ export function CustomThemeModal({
               className="h-8 gap-1.5 text-xs rounded-lg"
             >
               <Upload className="size-3.5" />
-              <span>Tải file .json</span>
+              <span>Upload .json file</span>
             </Button>
 
             <Button
@@ -179,7 +179,7 @@ export function CustomThemeModal({
               onClick={handleFillTemplate}
               className="h-8 gap-1.5 text-xs rounded-lg text-primary hover:bg-primary/10"
             >
-              <span>Điền JSON mẫu</span>
+              <span>Fill sample JSON</span>
             </Button>
           </div>
 
@@ -190,10 +190,10 @@ export function CustomThemeModal({
               size="sm"
               onClick={handleCopyTemplate}
               className="h-8 gap-1 text-[11px] rounded-lg text-muted-foreground hover:text-foreground"
-              title="Sao chép mẫu JSON"
+              title="Copy sample JSON"
             >
               {isCopied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
-              <span>{isCopied ? 'Đã chép' : 'Sao chép mẫu'}</span>
+              <span>{isCopied ? 'Copied' : 'Copy sample'}</span>
             </Button>
 
             <Button
@@ -202,22 +202,22 @@ export function CustomThemeModal({
               size="sm"
               onClick={handleDownloadTemplate}
               className="h-8 gap-1 text-[11px] rounded-lg text-muted-foreground hover:text-foreground"
-              title="Tải mẫu JSON về máy"
+              title="Download sample JSON"
             >
               <Download className="size-3" />
-              <span>Tải mẫu .json</span>
+              <span>Download sample .json</span>
             </Button>
           </div>
         </div>
 
-        {/* Khung nhập JSON Code */}
+        {/* JSON input editor */}
         <div className="flex-1 min-h-[220px] flex flex-col gap-2 py-3">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Nội dung JSON cấu hình Theme:</span>
+            <span>Theme JSON configuration:</span>
             {parsedTheme && (
               <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <Check className="size-3.5" />
-                Hợp lệ: {parsedTheme.name || parsedTheme.id} ({parsedTheme.id})
+                Valid: {parsedTheme.name || parsedTheme.id} ({parsedTheme.id})
               </span>
             )}
           </div>
@@ -238,7 +238,7 @@ export function CustomThemeModal({
           )}
         </div>
 
-        {/* Footer hành động */}
+        {/* Action Footer */}
         <DialogFooter className="gap-2 sm:justify-end">
           <Button
             type="button"
@@ -246,7 +246,7 @@ export function CustomThemeModal({
             onClick={onClose}
             className="rounded-xl"
           >
-            Hủy
+            Cancel
           </Button>
           <Button
             type="button"
@@ -255,7 +255,7 @@ export function CustomThemeModal({
             onClick={handleSave}
             className="rounded-xl px-5"
           >
-            Áp dụng & Lưu Theme
+            Apply & Save Theme
           </Button>
         </DialogFooter>
       </DialogContent>

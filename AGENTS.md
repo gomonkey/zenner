@@ -6,9 +6,9 @@ Detailed reference material lives in `docs/` (linked per section) so this file s
 
 ## Repository layout
 
-Monolithic Spring Boot backend service (`zenner-core`, port 8080, schema `zenner_core`) backed by PostgreSQL 17; frontend is in `zenner-client/`. See `docs/repository-layout.md`.
+Monolithic Spring Boot backend service (`zenner-core`, port 8080, default schema `public`) backed by PostgreSQL 17; frontend is in `zenner-client/`. See `docs/repository-layout.md`.
 
-- `zenner-core` (port 8080, schema `zenner_core`): users, auth, days, time blocks, tasks, reminders.
+- `zenner-core` (port 8080, default schema `public`): users, auth, days, time blocks, tasks, reminders.
 - Port 8080 is the standard backend port.
 
 ## API conventions
@@ -25,7 +25,7 @@ Per-service Maven: fast loop `./mvnw -B test`, full `./mvnw -B verify` (DB-backe
 
 ## Architecture
 
-Monolithic architecture: single Spring Boot application (`zenner-core`) owning all domain aggregates (users, auth, days, time blocks, tasks, reminders) in schema `zenner_core`. Foreign keys enforce relational integrity directly between `days`/`reminders` and `users`. Flyway migrations manage schema evolution.
+Monolithic architecture: single Spring Boot application (`zenner-core`) owning all domain aggregates (users, auth, days, time blocks, tasks, reminders) in the default PostgreSQL schema `public`. Foreign keys enforce relational integrity directly between `days`/`reminders` and `users`. Flyway migrations manage schema evolution.
 
 ## Agent workflow
 
@@ -49,6 +49,11 @@ Skills (load if available): `spring-boot-engineer`, `java-architect`, `microserv
 - Schema changes via Flyway (never `ddl-auto=update` outside local dev).
 - Actuator health/metrics exposed; structured logs, no PII/secrets.
 - Packages by feature within a service (`com.acme.days.{web,service,domain,repo}`).
+
+## Git commit conventions
+
+- **No file names**: Do not include file names or file paths in commit messages (neither in the title nor in bullet points).
+- **List items**: When listing changes in a commit body, start each bullet point with a verb in past form with no capitalization (e.g. `- added ...`, `- updated ...`, `- configured ...`, `- removed ...`).
 
 ## Guardrails
 

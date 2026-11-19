@@ -19,6 +19,10 @@ export function Home() {
 
 	const {
 		pageData,
+		isLoading,
+		isError,
+		error,
+		refetch,
 		themeBoost,
 		toggleThemeBoost,
 		handleToggleReminder,
@@ -26,18 +30,52 @@ export function Home() {
 		handleTimeGoalChange,
 	} = useHomeData();
 
-	// Đọc theme đang được chọn từ danh sách dynamic theme list
+	// Resolve selected theme from dynamic theme list
 	const availableThemes = getThemeList();
 	const themeConfig =
 		availableThemes.find((t) => t.id === themeBoost) || defaultTheme;
 
+	if (isLoading) {
+		return (
+			<div className="h-screen w-screen bg-background flex items-center justify-center">
+				<div className="flex flex-col items-center gap-3">
+					<div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+					<span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+						{t('home.loading', 'Loading Day...')}
+					</span>
+				</div>
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div className="h-screen w-screen bg-background flex items-center justify-center p-4">
+				<div className="max-w-md w-full p-6 bg-card border border-destructive/30 rounded-2xl shadow-lg flex flex-col items-center text-center gap-3">
+					<span className="text-sm font-semibold text-destructive">
+						{t('home.errorLoading', 'Failed to connect to Zenner server')}
+					</span>
+					<p className="text-xs text-muted-foreground">
+						{error instanceof Error ? error.message : 'Unable to reach backend service.'}
+					</p>
+					<button
+						onClick={() => refetch()}
+						className="mt-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-medium rounded-xl hover:brightness-105 transition-all cursor-pointer"
+					>
+						{t('home.retry', 'Retry Connection')}
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="h-screen max-h-screen w-screen overflow-hidden bg-background text-foreground p-3 md:p-4 flex flex-col items-center justify-center relative font-sans transition-colors duration-200">
-			{/* Cấu trúc cha bọc Planner */}
+			{/* Root Planner Wrapper */}
 			<div className="w-full h-full max-h-full flex items-stretch gap-0 relative overflow-hidden">
-				{/* KHUNG PLANNER LỚN CHÍNH (Tiêu thụ trực tiếp từ themeConfig) */}
+				{/* Main Planner Frame */}
 				<div className={themeConfig.plannerWrapper}>
-					{/* ---------------- CỘT TRÁI: TIMEBLOCK ---------------- */}
+					{/* ---------------- LEFT COLUMN: TIMEBLOCK ---------------- */}
 					<div className="w-full lg:w-[40%] h-full max-h-full flex flex-col gap-3 overflow-hidden">
 						<div className={themeConfig.headerDivider}>
 							<div className="flex flex-col gap-0.5">
@@ -54,7 +92,7 @@ export function Home() {
 								</div>
 							</div>
 
-							{/* Nút Điều khiển Hệ thống tích hợp làm Toolbar Widget */}
+							{/* System controls integrated as Toolbar widget */}
 							<Toolbar
 								currentLanguage={i18n.language}
 								resolvedTheme={resolvedTheme}
@@ -68,7 +106,7 @@ export function Home() {
 							/>
 						</div>
 
-						{/* Timeblock Component dùng chung */}
+						{/* Shared Timeblock component */}
 						<div className="flex-1 min-h-0 overflow-hidden">
 							<Timeblock
 								events={pageData.events}
@@ -81,9 +119,9 @@ export function Home() {
 						</div>
 					</div>
 
-					{/* ---------------- CỘT PHẢI: REMINDERS, MATRIX, NOTES ---------------- */}
+					{/* ---------------- RIGHT COLUMN: REMINDERS, MATRIX, NOTES ---------------- */}
 					<div className="w-full lg:w-[60%] h-full max-h-full flex flex-col gap-2 overflow-hidden">
-						{/* 1. REMINDER LABELS (Khung nét đứt) */}
+						{/* 1. REMINDER LABELS */}
 						<ReminderList
 							reminders={pageData.reminders}
 							selectedWeek={pageData.selectedWeek}
@@ -93,7 +131,7 @@ export function Home() {
 							themeConfig={themeConfig}
 						/>
 
-						{/* 2. GRATITUDE QUOTE (Lời nhắc nhở tạo động lực) */}
+						{/* 2. GRATITUDE CARD */}
 						<GratitudeCard
 							quote={pageData.gratitudeQuote}
 							themeConfig={themeConfig}
@@ -107,7 +145,7 @@ export function Home() {
 							themeConfig={themeConfig}
 						/>
 
-						{/* 4. GHI CHÉP MỤC TIÊU Bullet Journal */}
+						{/* 4. DAILY GOAL INPUT */}
 						<div className="flex flex-col flex-shrink-0">
 							<input
 								type="text"

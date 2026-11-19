@@ -12,9 +12,9 @@ The user interface follows a clean, minimalist bento-grid layout with a calming 
 
 For detailed specifications, see:
 
-- [PRODUCT.md](file:///d:/MyWorkspace/Hadesthien/zenner/zenner-client/PRODUCT.md) — Product requirements, UX flows, typography (Outfit & Inter), and color palettes.
-- [TECH.md](file:///d:/MyWorkspace/Hadesthien/zenner/zenner-client/TECH.md) — Frontend technologies (Vite, Zustand, React Query, Shadcn/ui) and React Doctor performance checklists.
-- [STRUCTURE.md](file:///d:/MyWorkspace/Hadesthien/zenner/zenner-client/STRUCTURE.md) — Complete folder directory and architectural patterns.
+- [PRODUCT.md](steering/PRODUCT.md) — Product requirements, UX flows, typography (Outfit & Inter), and color palettes.
+- [TECH.md](steering/TECH.md) — Frontend technologies (Vite, Zustand, React Query, Shadcn/ui) and React Doctor performance checklists.
+- [STRUCTURE.md](steering/STRUCTURE.md) — Complete folder directory and architectural patterns.
 
 ---
 

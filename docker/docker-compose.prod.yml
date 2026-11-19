@@ -1,7 +1,7 @@
 # Production compose file for zenner
 # 
 # This orchestrates the complete zenner stack:
-#   - PostgreSQL database (with zenner_core schema)
+#   - PostgreSQL database (with default public schema)
 #   - zenner-core service (backend monolithic service on port 8080)
 #
 # Usage:
@@ -45,7 +45,7 @@ services:
       - ../zenner-core/.env.prod
     environment:
       # Override database connection to use shared postgres
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=zenner_core
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod

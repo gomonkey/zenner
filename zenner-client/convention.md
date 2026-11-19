@@ -1,24 +1,38 @@
-# Git Branch Conventions for Zenner Client
+# Git Conventions for Zenner Client
 
-Quy định đặt tên các nhánh tính năng (Git Branches) cho dự án `zenner-client` để đảm bảo tính nhất quán và dễ theo dõi:
+Branch and commit message conventions for `zenner-client` to ensure consistency and clarity across the team and AI agents:
 
-## Định dạng chung (General Format)
+## 1. Branch Naming Conventions
+
+### General Format
 
 ```bash
-feat/<tên màn hình hoặc trang>/<tên tính năng cụ thể>
+feat/<screen or page name>/<specific feature name>
 ```
 
-## Ví dụ (Examples)
+### Examples
 
-- Đối với các tính năng thuộc trang chủ (Home Page):
-  - Nhánh gốc của trang chủ: `feat/home-page`
-  - Nhánh thêm tính năng bộ lọc lịch: `feat/home-page/calendar-filter`
-  - Nhánh thêm tính năng ghi chú nhanh: `feat/home-page/quick-notes`
-  - Nhánh sửa lỗi ma trận Eisenhower: `bugfix/home-page/matrix-rendering` (Sử dụng `bugfix` hoặc `fix` thay cho `feat` đối với các nhánh sửa lỗi).
+- **Home Page features**:
+  - Root branch: `feat/home-page`
+  - Calendar filter: `feat/home-page/calendar-filter`
+  - Quick notes: `feat/home-page/quick-notes`
+  - Eisenhower matrix bugfix: `bugfix/home-page/matrix-rendering` (use `bugfix` or `fix` for bugfix branches)
 
-- Đối với các trang khác:
-  - Trang đăng nhập: `feat/login/sso-integration`
-  - Trang cài đặt: `feat/settings/dark-mode-toggle`
+- **Other pages**:
+  - Login page: `feat/login/sso-integration`
+  - Settings page: `feat/settings/dark-mode-toggle`
 
 ---
-*Lưu ý: Luôn tuân thủ quy định này khi tạo nhánh mới để các thành viên khác trong nhóm và AI Agent dễ dàng nắm bắt ngữ cảnh phát triển.*
+
+## 2. Commit Message Conventions
+
+- **No file names**: Do not include file names or file paths in commit messages (neither in the title nor in bullet points).
+- **List items**: When listing changes in a commit body, start each bullet point with a verb in past form with no capitalization (e.g. `- added ...`, `- updated ...`, `- configured ...`, `- removed ...`):
+  - `- added ...`
+  - `- updated ...`
+  - `- configured ...`
+  - `- removed ...`
+  - `- documented ...`
+
+---
+*Note: Always adhere to these conventions when creating branches and commits to maintain a clean and consistent project history.*

@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.timeblocks (
+CREATE TABLE timeblocks (
     id UUID PRIMARY KEY,
     day_id UUID NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE zenner_core.timeblocks (
 
     CONSTRAINT fk_timeblocks_day
         FOREIGN KEY (day_id)
-        REFERENCES zenner_core.days (id)
+        REFERENCES days (id)
         ON DELETE CASCADE,
 
     CONSTRAINT chk_timeblocks_valid_time

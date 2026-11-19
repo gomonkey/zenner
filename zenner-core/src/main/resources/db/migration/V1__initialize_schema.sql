@@ -1,1 +1,2 @@
-CREATE SCHEMA IF NOT EXISTS zenner_core;
+-- Default PostgreSQL schema: public
+SELECT 1;
