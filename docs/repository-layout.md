@@ -10,7 +10,7 @@ zenner/
 ├── docker/                  # compose files for PostgreSQL and prod stack
 ├── init/                    # schema init SQL for local/prod
 ├── docs/                    # this folder
-├── zenner-core/             # Spring Boot monolithic backend (port 8080, schema zenner_core)
+├── zenner-core/             # Spring Boot monolithic backend (port 8080, default schema public)
 └── zenner-client/           # React Native + web frontend monorepo (out of scope for backend work)
 ```
 
@@ -22,7 +22,7 @@ Built on Spring Boot 4.1.0 / Java 21 with its own `pom.xml`, `mvnw`, `Dockerfile
 
 ## Database
 
-- Single PostgreSQL 17 instance, schema: `zenner_core`.
+- Single PostgreSQL 17 instance, default schema: `public`.
 - Start locally: `scripts/docker-local.sh up` (port `5433`, db `zenner_dev`).
 - Tables (`days`, `reminders`) reference `users(id)` with explicit foreign key constraints.
 - Migrations are managed by Flyway on application startup.

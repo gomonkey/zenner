@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.users (
+CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255),
@@ -10,5 +10,5 @@ CREATE TABLE zenner_core.users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_users_email ON zenner_core.users(email);
-CREATE INDEX idx_users_is_active ON zenner_core.users(is_active);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_is_active ON users(is_active);

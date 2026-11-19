@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.tasks (
+CREATE TABLE tasks (
     id UUID PRIMARY KEY,
     day_id UUID NOT NULL,
     detail VARCHAR(255) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE zenner_core.tasks (
 
     CONSTRAINT fk_tasks_day
         FOREIGN KEY (day_id)
-        REFERENCES zenner_core.days (id)
+        REFERENCES days (id)
         ON DELETE CASCADE,
 
     CONSTRAINT chk_tasks_action

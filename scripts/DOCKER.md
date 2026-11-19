@@ -92,8 +92,8 @@ POSTGRES_PASSWORD=secure_password
 
 ## Database Schema
 
-The PostgreSQL instance hosts the backend schema:
-- `zenner_core` — Used by zenner-core monolithic service
+The PostgreSQL instance uses the default schema:
+- `public` — Default PostgreSQL schema used by zenner-core monolithic service
 
 The schema is automatically created on first startup via `init/init-schemas.sql`.
 

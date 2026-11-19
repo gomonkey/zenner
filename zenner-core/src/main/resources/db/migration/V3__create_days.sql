@@ -1,4 +1,4 @@
-CREATE TABLE zenner_core.days (
+CREATE TABLE days (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     date DATE NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE zenner_core.days (
 
     CONSTRAINT fk_days_user
         FOREIGN KEY (user_id)
-        REFERENCES zenner_core.users (id)
+        REFERENCES users (id)
         ON DELETE CASCADE,
 
     CONSTRAINT uq_days_user_date

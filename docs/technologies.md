@@ -12,7 +12,7 @@
 
 ## Data
 
-- **PostgreSQL 17** (schema `zenner_core`).
+- **PostgreSQL 17** (default schema `public`).
 - **Redis** (starter present; available for caching/session helpers).
 - **Flyway** for schema changes (`ddl-auto=validate`; never `update` outside local dev).
 - **Hibernate/JPA** with `open-in-view=false`.
