@@ -1,0 +1,15 @@
+{
+  "name": "zenner-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "lint": "pnpm --recursive exec eslint ."
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "eslint": "^9.16.0",
+    "@types/node": "^22.0.0"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "common": {
+    "appName": "Zenner",
+    "welcome": "Welcome back!",
+    "slogan": "Minimalist daily planner for distraction-free focus."
+  },
+  "auth": {
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "Enter your username",
+    "invalidCredentials": "Invalid username or password.",
+    "forgotPassword": "Forgot password?",
+    "loginWithGoogle": "Continue with Google",
+    "dontHaveAccount": "Don't have an account?",
+    "or": "Or",
+    "email": "Email",
+    "confirmPassword": "Confirm Password",
+    "alreadyHaveAccount": "Already have an account?",
+    "backToLogin": "Back to Sign In",
+    "sendResetLink": "Send Reset Link",
+    "forgotPasswordDescription": "Enter your email address to receive a password reset link."
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "home": {
+    "logout": "Logout",
+    "selectedMonth": "Selected Month",
+    "date": "Date",
+    "todayTimeblock": "Today's Timeblock",
+    "dayMode": "DAY MODE",
+    "reminders": "Reminders",
+    "eisenhowerTitle": "Eisenhower Decision Matrix",
+    "urgent": "Urgent",
+    "notUrgent": "Not Urgent",
+    "important": "Important",
+    "unimportant": "Unimportant",
+    "taskDo": "Task (do)",
+    "when": "When",
+    "done": "Done",
+    "taskTodo": "Task (To-do)",
+    "taskDelegate": "Task (Delegate)",
+    "whoCanDoIt": "Who can do it for you ?",
+    "taskDelete": "Task (delete)"
+  }
+}
