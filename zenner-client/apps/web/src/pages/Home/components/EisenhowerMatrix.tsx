@@ -5,7 +5,12 @@ import {
 	flexRender,
 	createColumnHelper,
 } from '@tanstack/react-table';
-import { DoTask, ScheduleTask, DelegateTask, DeleteTask } from '../mockData';
+import {
+	MatrixDoTask as DoTask,
+	MatrixScheduleTask as ScheduleTask,
+	MatrixDelegateTask as DelegateTask,
+	MatrixDeleteTask as DeleteTask,
+} from '@zenner/core/schema/day.schema';
 import { ThemeConfig } from '@zenner/core/theme/themeConfig';
 
 interface EisenhowerMatrixProps {

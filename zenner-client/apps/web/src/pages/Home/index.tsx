@@ -19,6 +19,10 @@ export function Home() {
 
 	const {
 		pageData,
+		isLoading,
+		isError,
+		error,
+		refetch,
 		themeBoost,
 		toggleThemeBoost,
 		handleToggleReminder,
@@ -30,6 +34,40 @@ export function Home() {
 	const availableThemes = getThemeList();
 	const themeConfig =
 		availableThemes.find((t) => t.id === themeBoost) || defaultTheme;
+
+	if (isLoading) {
+		return (
+			<div className="h-screen w-screen bg-background flex items-center justify-center">
+				<div className="flex flex-col items-center gap-3">
+					<div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+					<span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+						{t('home.loading', 'Loading Day...')}
+					</span>
+				</div>
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div className="h-screen w-screen bg-background flex items-center justify-center p-4">
+				<div className="max-w-md w-full p-6 bg-card border border-destructive/30 rounded-2xl shadow-lg flex flex-col items-center text-center gap-3">
+					<span className="text-sm font-semibold text-destructive">
+						{t('home.errorLoading', 'Failed to connect to Zenner server')}
+					</span>
+					<p className="text-xs text-muted-foreground">
+						{error instanceof Error ? error.message : 'Unable to reach backend service.'}
+					</p>
+					<button
+						onClick={() => refetch()}
+						className="mt-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-medium rounded-xl hover:brightness-105 transition-all cursor-pointer"
+					>
+						{t('home.retry', 'Retry Connection')}
+					</button>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="h-screen max-h-screen w-screen overflow-hidden bg-background text-foreground p-3 md:p-4 flex flex-col items-center justify-center relative font-sans transition-colors duration-200">
