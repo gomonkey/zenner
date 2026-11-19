@@ -1,39 +1,38 @@
-# Zenner Shared Docker Compose
+# Zenner Docker Setup
 
-This directory contains the shared PostgreSQL database for all Zenner microservices.
+This directory contains Docker configurations for the Zenner backend.
 
 ## Architecture
 
-- **Single PostgreSQL database** with multiple schemas:
-  - `zenner_core` - Core service schema
-  - `zenner_auth` - Authentication service schema
-  
-- Each microservice connects to the same database but uses its own schema via the `DATABASE_SCHEMA` environment variable.
+- **PostgreSQL 17 database** with single schema:
+  - `zenner_core` - Monolithic backend schema
+- The backend service connects to the database via `DATABASE_SCHEMA=zenner_core`.
 
 ## Local Development
 
-### Start the shared database
+### Start the database
 
 ```bash
 # From the zenner root directory
-docker-compose --env-file .env.local up -d
+scripts/docker-local.sh up
 ```
 
 This will:
 - Start PostgreSQL on `localhost:5433`
 - Create database `zenner_dev`
-- Initialize both `zenner_core` and `zenner_auth` schemas
-- Persist data in the `postgres_data` volume
+- Initialize `zenner_core` schema
+- Persist data in the `postgres_data_dev` volume
 
-### Connect from microservices
+### Connect from the backend
 
-Each service (zenner-core, zenner-auth) should use these connection settings in their `.env.local`:
+The backend service (`zenner-core`) uses these connection settings in `.env.local`:
 
 ```env
+SERVER_PORT=8080
 DATABASE_HOST=localhost
 DATABASE_PORT=5433
 DATABASE_NAME=zenner_dev
-DATABASE_SCHEMA=zenner_core  # or zenner_auth
+DATABASE_SCHEMA=zenner_core
 DATABASE_USERNAME=zenner_dev
 DATABASE_PASSWORD=Zenner!2026
 ```
@@ -41,36 +40,31 @@ DATABASE_PASSWORD=Zenner!2026
 ### Stop the database
 
 ```bash
-docker-compose down
+scripts/docker-local.sh down
 ```
 
 ### Reset the database
 
 ```bash
 # WARNING: This deletes all data
-docker-compose down -v
-docker-compose --env-file .env.local up -d
+scripts/docker-local.sh clean
+scripts/docker-local.sh up
 ```
 
 ## Production
 
-For production deployment to AWS:
+For production deployment:
 
-1. **RDS PostgreSQL instance** with database `zenner`
-2. Schemas `zenner_core` and `zenner_auth` created by migration scripts
-3. Each ECS service connects with `DATABASE_SCHEMA` set appropriately
-4. Use Secrets Manager for credentials
+1. **PostgreSQL 17** with database `zenner` and schema `zenner_core`
+2. Backend service running on port 8080
+3. Schema migrations handled automatically by Flyway on startup
 
 ## Files
 
-- `docker-compose.yml` - Shared PostgreSQL service definition
-- `.env.local` - Local development environment variables
-- `.env.prod` - Production environment template
-- `.env.example` - Example environment file (committed to git)
-- `scripts/init-schemas.sql` - Schema initialization script
-
-## Notes
-
-- The `.env.local` and `.env.prod` files should be added to `.gitignore`
-- Schema migrations are handled by each microservice independently
-- Both microservices can run simultaneously against the same database
+- `docker/docker-compose.local.yml` - Local development PostgreSQL container
+- `docker/docker-compose.prod.yml` - Production stack (Postgres + backend service)
+- `init/init-schemas-local.sql` - Local schema initialization script
+- `init/init-schemas-prod.sql` - Production schema initialization script
+- `scripts/docker-local.sh` - Local docker helper script
+- `scripts/docker-prod.sh` - Production docker helper script
+- `scripts/run-core.sh` - Run backend service locally via Maven

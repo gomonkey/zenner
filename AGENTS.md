@@ -6,11 +6,10 @@ Detailed reference material lives in `docs/` (linked per section) so this file s
 
 ## Repository layout
 
-Two independently deployable Spring Boot services (`zenner-auth`, `zenner-core`) backed by one PostgreSQL 17 instance with a schema per service; frontend is a separate submodule. See `docs/repository-layout.md`.
+Monolithic Spring Boot backend service (`zenner-core`, port 8080, schema `zenner_core`) backed by PostgreSQL 17; frontend is a separate submodule. See `docs/repository-layout.md`.
 
-- `zenner-auth` (port 8082, schema `zenner_auth`): users, credentials, tokens.
-- `zenner-core` (port 8081, schema `zenner_core`): days, time blocks, tasks, reminders.
-- Port 8080 is reserved for the future API gateway; services must not bind it.
+- `zenner-core` (port 8080, schema `zenner_core`): users, auth, days, time blocks, tasks, reminders.
+- Port 8080 is the standard backend port.
 
 ## API conventions
 
@@ -24,9 +23,9 @@ Java 21, Spring Boot 4.1.0, Spring MVC + virtual threads, Spring Security 7, JPA
 
 Per-service Maven: fast loop `./mvnw -B test`, full `./mvnw -B verify` (DB-backed tests need Postgres or Testcontainers). JUnit 5, `@MockitoBean`, `@WebMvcTest` slices. See `docs/testing.md`.
 
-## Microservices
+## Architecture
 
-Strict ownership: auth owns identity, core owns planning data. Shared DB instance but no cross-schema FKs; core references users by `UUID` only. Services run own Flyway migrations and deploy as separate images. See `docs/microservices.md`.
+Monolithic architecture: single Spring Boot application (`zenner-core`) owning all domain aggregates (users, auth, days, time blocks, tasks, reminders) in schema `zenner_core`. Foreign keys enforce relational integrity directly between `days`/`reminders` and `users`. Flyway migrations manage schema evolution.
 
 ## Agent workflow
 
@@ -77,7 +76,6 @@ Single-context (`GLOSSARY.md` + `docs/adr/` at repo root). See `docs/agents/doma
 | Purpose | Command |
 |---|---|
 | Start DB | `scripts/docker-local.sh up` |
-| Run core | `scripts/run-core.sh` |
-| Run auth | `scripts/run-auth.sh` |
-| Fast tests (service) | `cd zenner-core && ./mvnw -B test` |
-| Full verify (service) | `cd zenner-core && ./mvnw -B verify` |
+| Run backend | `scripts/run-core.sh` |
+| Fast tests | `cd zenner-core && ./mvnw -B test` |
+| Full verify | `cd zenner-core && ./mvnw -B verify` |

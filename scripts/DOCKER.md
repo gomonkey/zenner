@@ -19,18 +19,16 @@ zenner/
 
 ## Local Development
 
-Runs only the shared PostgreSQL database. Services (zenner-auth, zenner-core) run via Maven/IDE.
+Runs only the PostgreSQL database. The backend service (`zenner-core`) runs via Maven/IDE.
 
 ```bash
 # Start database
 ./scripts/docker-local.sh up
 
-# Run services (in separate terminals)
-./scripts/run-auth.sh
+# Run backend
 ./scripts/run-core.sh
 
 # Or run manually
-cd zenner-auth && ./mvnw spring-boot:run
 cd zenner-core && ./mvnw spring-boot:run
 
 # View database logs
@@ -48,7 +46,7 @@ cd zenner-core && ./mvnw spring-boot:run
 
 ## Production
 
-Runs the complete stack: PostgreSQL + zenner-auth + zenner-core.
+Runs the complete stack: PostgreSQL + zenner-core.
 
 ```bash
 # Start all services
@@ -58,7 +56,7 @@ Runs the complete stack: PostgreSQL + zenner-auth + zenner-core.
 ./scripts/docker-prod.sh logs
 
 # View specific service logs
-./scripts/docker-prod.sh logs zenner-auth
+./scripts/docker-prod.sh logs zenner-core
 
 # Check health
 ./scripts/docker-prod.sh health
@@ -75,12 +73,10 @@ Runs the complete stack: PostgreSQL + zenner-auth + zenner-core.
 
 **Service Ports (prod, host:container):**
 - PostgreSQL: `5432`
-- zenner-core: `8081:8081`
-- zenner-auth: `8082:8082`
+- zenner-core: `8080:8080`
 
-**Local development (run via `run-core.sh` / `run-auth.sh`):**
-- zenner-core: `8081`
-- zenner-auth: `8082`
+**Local development (run via `run-core.sh`):**
+- zenner-core: `8080`
 
 ## Environment Files
 
@@ -94,13 +90,12 @@ POSTGRES_USER=zenner
 POSTGRES_PASSWORD=secure_password
 ```
 
-## Database Schemas
+## Database Schema
 
-The PostgreSQL instance hosts two schemas:
-- `zenner_auth` — Used by zenner-auth service
-- `zenner_core` — Used by zenner-core service
+The PostgreSQL instance hosts the backend schema:
+- `zenner_core` — Used by zenner-core monolithic service
 
-Both schemas are automatically created on first startup via `init/init-schemas.sql`.
+The schema is automatically created on first startup via `init/init-schemas.sql`.
 
 ## Manual Docker Compose
 

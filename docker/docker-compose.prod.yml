@@ -1,9 +1,8 @@
 # Production compose file for zenner
 # 
 # This orchestrates the complete zenner stack:
-#   - Shared PostgreSQL database (with zenner_auth and zenner_core schemas)
-#   - zenner-auth service (included from zenner-auth/docker/docker-compose.prod.yml)
-#   - zenner-core service (included from zenner-core/docker/docker-compose.prod.yml)
+#   - PostgreSQL database (with zenner_core schema)
+#   - zenner-core service (backend monolithic service on port 8080)
 #
 # Usage:
 #   Start all services: docker-compose -f docker/docker-compose.prod.yml --env-file .env.prod up -d
@@ -34,34 +33,6 @@ services:
     networks:
       - zenner-network
 
-  # zenner-auth service configuration
-  zenner-auth:
-    build: ../zenner-auth
-    image: zenner-auth
-    container_name: zenner-auth
-    restart: unless-stopped
-    ports:
-      - "8082:8082"
-    env_file:
-      - ../zenner-auth/.env.prod
-    environment:
-      # Override database connection to use shared postgres
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=zenner_auth
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_PROFILES_ACTIVE: prod
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - zenner-network
-
   # zenner-core service configuration
   zenner-core:
     build: ../zenner-core
@@ -69,7 +40,7 @@ services:
     container_name: zenner-core
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "8080:8080"
     env_file:
       - ../zenner-core/.env.prod
     environment:
@@ -79,15 +50,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     depends_on:
       postgres:
-        condition: service_healthy
-      zenner-auth:
         condition: service_healthy
     networks:
       - zenner-network

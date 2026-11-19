@@ -1,43 +1,42 @@
 # Repository layout
 
-Zenner uses a small, service-per-domain layout. The root orchestrates shared infrastructure; each backend is an independent Spring Boot app.
+Zenner uses a monolithic backend architecture. The root orchestrates shared infrastructure and the frontend submodule.
 
 ```
 zenner/
 ├── AGENTS.md
 ├── README.md / DOCKER.md
-├── scripts/                 # docker-local.sh, run-core.sh, run-auth.sh, run-*
-├── docker/                  # compose files for the shared PostgreSQL (and future services)
+├── scripts/                 # docker-local.sh, run-core.sh, verify.sh
+├── docker/                  # compose files for PostgreSQL and prod stack
 ├── init/                    # schema init SQL for local/prod
 ├── docs/                    # this folder
-├── zenner-auth/             # Spring Boot auth service (port 8082, schema zenner_auth)
-├── zenner-core/             # Spring Boot core service (port 8081, schema zenner_core)
+├── zenner-core/             # Spring Boot monolithic backend (port 8080, schema zenner_core)
 └── zenner-client/           # React Native + web frontend monorepo (out of scope for backend work)
 ```
 
-## Backend services
+## Backend service
 
-- **zenner-core** (`com.taans.zennercore`): days, time blocks, tasks, reminders. Port `8081` (`SERVER_PORT`).
-- **zenner-auth** (`com.taans.zennerauth`): users and authentication. Port `8082`.
-- Port `8080` is reserved for the future API gateway; services must not bind it.
+- **zenner-core** (`com.taans.zennercore`): users, auth, days, time blocks, tasks, reminders. Port `8080` (`SERVER_PORT`).
 
-Both are Spring Boot 4.1.0 / Java 21 modules with their own `pom.xml`, `mvnw`, `Dockerfile`, `application*.yaml`, and Flyway migrations under `src/main/resources/db/migration`.
+Built on Spring Boot 4.1.0 / Java 21 with its own `pom.xml`, `mvnw`, `Dockerfile`, `application*.yaml`, and Flyway migrations under `src/main/resources/db/migration`.
 
-## Shared database
+## Database
 
-- Single PostgreSQL 17 instance, multiple schemas: `zenner_core`, `zenner_auth`.
+- Single PostgreSQL 17 instance, schema: `zenner_core`.
 - Start locally: `scripts/docker-local.sh up` (port `5433`, db `zenner_dev`).
-- Each service selects its schema via `DATABASE_SCHEMA`; migrations are owned by each service.
-- **No cross-schema foreign keys.** Core stores `user_id` as a plain `UUID` and never joins into `zenner_auth`.
+- Tables (`days`, `reminders`) reference `users(id)` with explicit foreign key constraints.
+- Migrations are managed by Flyway on application startup.
 
-## Conventions inside a service
+## Conventions inside the service
 
 ```
-src/main/java/com/taans/<service>/
-├── <Service>Application.java
+src/main/java/com/taans/zennercore/
+├── ZennerCoreApplication.java
 ├── api/v1/controller/      # REST controllers (web layer)
 ├── config/                 # Security, beans, properties
-├── (feature packages: service, domain, repo)   # add as features land
+├── domain/entity/          # JPA entities
+├── repository/             # Spring Data repositories
+├── service/                # Business logic services
 src/main/resources/
 ├── application.yaml / application-local.yaml / application-prod.yaml
 └── db/migration/            # Flyway scripts (V1__, V2__, ...)
@@ -47,7 +46,7 @@ src/main/resources/
 
 - Secrets come from environment variables (`.env.local` / `.env.prod`); never committed.
 - Profiles: `SPRING_PROFILES_ACTIVE=dev|prod`; empty `application-local.yaml`/`application-prod.yaml` override as needed.
-- Run scripts load `.env.local` for you (`scripts/run-core.sh`, `scripts/run-auth.sh`).
+- Run script loads `.env.local` for you (`scripts/run-core.sh`).
 
 ## Frontend
 
