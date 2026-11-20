@@ -78,7 +78,7 @@ describe('useAuthStore', () => {
     const validCookieToken = `header.${payload}.signature`;
 
     vi.stubGlobal('document', {
-      cookie: `zenner_access_token=${validCookieToken}`,
+      cookie: `access_token=${validCookieToken}`,
     });
 
     await useAuthStore.getState().checkAuth();

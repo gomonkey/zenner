@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    public static final String ACCESS_TOKEN_COOKIE = "zenner_access_token";
+    public static final String ACCESS_TOKEN_COOKIE = "access_token";
     public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
     public static final String AUTH_PATH = "/api/v1/auth";
     public static final String ROOT_PATH = "/";

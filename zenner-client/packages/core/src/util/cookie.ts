@@ -1,4 +1,4 @@
-export const ACCESS_TOKEN_COOKIE = 'zenner_access_token';
+export const ACCESS_TOKEN_COOKIE = 'access_token';
 
 export function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;

@@ -97,7 +97,7 @@ class AuthControllerTest {
 
         List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
         assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=test-raw-refresh-token") && c.contains("HttpOnly") && c.contains("Path=/api/v1/auth"));
-        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=test-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
+        assertThat(setCookies).anyMatch(c -> c.contains("access_token=test-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
     }
 
     @Test
@@ -155,7 +155,7 @@ class AuthControllerTest {
 
         List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
         assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=" + rawToken) && c.contains("HttpOnly"));
-        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=new-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
+        assertThat(setCookies).anyMatch(c -> c.contains("access_token=new-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
     }
 
     @Test
@@ -200,6 +200,6 @@ class AuthControllerTest {
         verify(refreshTokenService).revoke(rawToken, false);
         List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
         assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=;") && c.contains("Max-Age=0"));
-        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=;") && c.contains("Max-Age=0"));
+        assertThat(setCookies).anyMatch(c -> c.contains("access_token=;") && c.contains("Max-Age=0"));
     }
 }
