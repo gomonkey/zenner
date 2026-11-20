@@ -3,6 +3,7 @@ package com.taans.zennercore.service;
 import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.domain.auth.RefreshTokenSession;
 import com.taans.zennercore.exception.InvalidRefreshTokenException;
+import com.taans.zennercore.exception.TokenReuseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private static final String REFRESH_PREFIX = "auth:refresh:";
+    private static final String ROTATED_PREFIX = "auth:rotated:";
     private static final String USER_SESSIONS_PREFIX = "auth:user:";
     private static final String SESSIONS_SUFFIX = ":sessions";
 
@@ -32,6 +34,8 @@ public class RefreshTokenService {
     private final JsonMapper jsonMapper;
     private final JwtProperties jwtProperties;
     private final SecureRandom secureRandom = new SecureRandom();
+
+    public record RotateResult(String newRawRefreshToken, UUID userId) {}
 
     public RefreshTokenService(StringRedisTemplate redisTemplate,
                               JsonMapper jsonMapper,
@@ -45,7 +49,7 @@ public class RefreshTokenService {
         return issueSession(userId, UUID.randomUUID());
     }
 
-    public RefreshTokenSession validateAndTouchSession(String rawRefreshToken) {
+    public RotateResult rotate(String rawRefreshToken) {
         if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
             throw new InvalidRefreshTokenException("Refresh token is required");
         }
@@ -54,17 +58,26 @@ public class RefreshTokenService {
         String sessionJson = redisTemplate.opsForValue().get(REFRESH_PREFIX + hash);
 
         if (sessionJson == null) {
+            String rotatedUserId = redisTemplate.opsForValue().get(ROTATED_PREFIX + hash);
+            if (rotatedUserId != null) {
+                log.warn("Token reuse detected for rotated hash {}. Revoking all sessions for user {}", hash, rotatedUserId);
+                revokeAllUserSessions(UUID.fromString(rotatedUserId));
+                throw new TokenReuseException("Refresh token reuse detected");
+            }
             throw new InvalidRefreshTokenException("Invalid or expired refresh token");
         }
 
         RefreshTokenSession session = deserializeSession(sessionJson);
         Duration ttl = Duration.ofSeconds(jwtProperties.refreshTokenExpirySeconds());
 
-        // Slide session expiration in Redis
-        redisTemplate.expire(REFRESH_PREFIX + hash, ttl);
-        redisTemplate.expire(userSessionsKey(session.userId()), ttl);
+        // Invalidate old token and store rotated marker
+        redisTemplate.delete(REFRESH_PREFIX + hash);
+        redisTemplate.opsForValue().set(ROTATED_PREFIX + hash, session.userId().toString(), ttl);
+        removeUserSession(session.userId(), hash);
 
-        return session;
+        String newRawToken = issueSession(session.userId(), session.familyId());
+
+        return new RotateResult(newRawToken, session.userId());
     }
 
     public void revoke(String rawRefreshToken, boolean allDevices) {
@@ -75,15 +88,23 @@ public class RefreshTokenService {
         String hash = hashToken(rawRefreshToken);
         String sessionJson = redisTemplate.opsForValue().get(REFRESH_PREFIX + hash);
 
+        UUID userId = null;
         if (sessionJson != null) {
             RefreshTokenSession session = deserializeSession(sessionJson);
-            UUID userId = session.userId();
-            if (allDevices) {
-                revokeAllUserSessions(userId);
-            } else {
-                redisTemplate.delete(REFRESH_PREFIX + hash);
-                removeUserSession(userId, hash);
+            userId = session.userId();
+            Duration ttl = Duration.ofSeconds(jwtProperties.refreshTokenExpirySeconds());
+            redisTemplate.delete(REFRESH_PREFIX + hash);
+            redisTemplate.opsForValue().set(ROTATED_PREFIX + hash, userId.toString(), ttl);
+            removeUserSession(userId, hash);
+        } else {
+            String rotatedUserId = redisTemplate.opsForValue().get(ROTATED_PREFIX + hash);
+            if (rotatedUserId != null) {
+                userId = UUID.fromString(rotatedUserId);
             }
+        }
+
+        if (allDevices && userId != null) {
+            revokeAllUserSessions(userId);
         }
     }
 

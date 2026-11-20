@@ -79,9 +79,9 @@ public class AuthController {
             throw new InvalidRefreshTokenException("Refresh token cookie is missing");
         }
 
-        RefreshTokenSession session = refreshTokenService.validateAndTouchSession(refreshToken);
+        RefreshTokenService.RotateResult rotateResult = refreshTokenService.rotate(refreshToken);
 
-        User user = userRepository.findById(session.userId())
+        User user = userRepository.findById(rotateResult.userId())
             .orElseThrow(() -> new InvalidRefreshTokenException("User not found"));
 
         if (!user.isActive()) {
@@ -90,7 +90,7 @@ public class AuthController {
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
         ResponseCookie accessCookie = buildAccessCookie(accessToken, jwtProperties.accessTokenExpirySeconds());
-        ResponseCookie refreshCookie = buildRefreshCookie(refreshToken, jwtProperties.refreshTokenExpirySeconds());
+        ResponseCookie refreshCookie = buildRefreshCookie(rotateResult.newRawRefreshToken(), jwtProperties.refreshTokenExpirySeconds());
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())

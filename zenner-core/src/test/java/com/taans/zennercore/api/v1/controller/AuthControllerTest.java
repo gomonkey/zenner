@@ -130,11 +130,11 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/refresh returns new access token and non-httponly cookie without rotating refresh token")
-    void refresh_withValidCookie_returnsTokens() {
+    @DisplayName("POST /api/v1/auth/refresh rotates token and returns new access token and cookies")
+    void refresh_withValidCookie_rotatesAndReturnsTokens() {
         UUID userId = UUID.randomUUID();
-        UUID familyId = UUID.randomUUID();
-        String rawToken = "valid-refresh-token";
+        String oldToken = "old-refresh-token";
+        String newToken = "new-refresh-token";
 
         User user = User.builder()
             .id(userId)
@@ -142,19 +142,19 @@ class AuthControllerTest {
             .active(true)
             .build();
 
-        when(refreshTokenService.validateAndTouchSession(rawToken))
-            .thenReturn(new com.taans.zennercore.domain.auth.RefreshTokenSession(userId, familyId, java.time.Instant.now(), java.time.Instant.now().plusSeconds(604800)));
+        when(refreshTokenService.rotate(oldToken))
+            .thenReturn(new RefreshTokenService.RotateResult(newToken, userId));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(jwtService.generateAccessToken(userId, "dev@zenner.local")).thenReturn("new-access-jwt");
 
         var result = assertThat(mvc.post().uri("/api/v1/auth/refresh")
-            .cookie(new Cookie("refresh_token", rawToken)))
+            .cookie(new Cookie("refresh_token", oldToken)))
             .hasStatus(HttpStatus.OK);
 
         result.bodyJson().extractingPath("$.data.accessToken").isEqualTo("new-access-jwt");
 
         List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
-        assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=" + rawToken) && c.contains("HttpOnly"));
+        assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=" + newToken) && c.contains("HttpOnly") && c.contains("Path=/api/v1/auth"));
         assertThat(setCookies).anyMatch(c -> c.contains("access_token=new-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
     }
 
@@ -172,7 +172,7 @@ class AuthControllerTest {
     @DisplayName("POST /api/v1/auth/refresh with invalid token returns 401 ProblemDetail")
     void refresh_withInvalidToken_returns401() {
         String invalidToken = "invalid-token";
-        when(refreshTokenService.validateAndTouchSession(invalidToken))
+        when(refreshTokenService.rotate(invalidToken))
             .thenThrow(new InvalidRefreshTokenException("Invalid or expired refresh token"));
 
         assertThat(mvc.post().uri("/api/v1/auth/refresh")
@@ -180,6 +180,21 @@ class AuthControllerTest {
             .hasStatus(HttpStatus.UNAUTHORIZED)
             .bodyJson()
             .hasPathSatisfying("$.detail", detail -> assertThat(detail).isEqualTo("Invalid or expired refresh token"))
+            .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/auth/refresh with reused token triggers reuse detection and returns 401")
+    void refresh_withReusedToken_returns401() {
+        String reusedToken = "already-rotated-token";
+        when(refreshTokenService.rotate(reusedToken))
+            .thenThrow(new TokenReuseException("Refresh token reuse detected"));
+
+        assertThat(mvc.post().uri("/api/v1/auth/refresh")
+            .cookie(new Cookie("refresh_token", reusedToken)))
+            .hasStatus(HttpStatus.UNAUTHORIZED)
+            .bodyJson()
+            .hasPathSatisfying("$.detail", detail -> assertThat(detail).isEqualTo("Refresh token reuse detected"))
             .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401));
     }
 
