@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authApi } from '../api/endpoints/auth.api';
+import { ACCESS_TOKEN_COOKIE, deleteCookie, getCookie, isTokenExpired } from '../util/cookie';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async (allDevices = false) => {
+    deleteCookie(ACCESS_TOKEN_COOKIE);
     set({ isAuthenticated: false, token: null });
     try {
       await authApi.logout({ allDevices });
@@ -34,6 +36,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
+    // 1. Check if the non-HttpOnly access token cookie exists and has not expired
+    const cookieToken = getCookie(ACCESS_TOKEN_COOKIE);
+    if (cookieToken && !isTokenExpired(cookieToken)) {
+      set({ isAuthenticated: true, token: cookieToken, isInitializing: false });
+      return;
+    }
+
+    // 2. If access token is missing or expired, attempt refresh via HttpOnly refresh cookie
     try {
       const response = await authApi.refresh();
       set({ isAuthenticated: true, token: response.accessToken, isInitializing: false });

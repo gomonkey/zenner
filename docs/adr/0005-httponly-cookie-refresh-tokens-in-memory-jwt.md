@@ -16,6 +16,11 @@ Storing refresh tokens in client-side storage (e.g. `localStorage`) leaves long-
 - **Client Concurrency & Silent Hydration**: The client Axios interceptor coordinates silent token refresh during app boot (`checkAuth()`) and buffers concurrent `401 Unauthorized` requests during runtime so pending requests are automatically retried without interrupting the user.
 - **CORS & Credentials**: Axios is configured with `withCredentials: true`, and Spring Security's CORS configuration explicitly permits credentials for trusted client origins.
 
+## Amendment (Post-Implementation Refinement)
+- **Problem**: Single-use RTR with zero grace window caused race conditions when users refreshed pages rapidly or opened multiple tabs: re-submitting an already-rotated token before cookie updates settled triggered false-positive reuse detection and revoked all active sessions. In addition, losing access tokens on every reload forced unnecessary `/refresh` calls on every mount.
+- **Access Token Persistence via Cookie**: The backend delivers the 15-minute access token in a non-HttpOnly cookie (`zenner_access_token`, `Path=/`, `Max-Age=900`, `SameSite=Lax`) in addition to the JSON payload. On page reload, the client checks this cookie; if valid and unexpired, the client initializes as authenticated immediately without issuing `/auth/refresh`. Access tokens persist for their intended 15-minute window regardless of page reloads.
+- **Static Refresh Token with Sliding Expiration**: The refresh token remains an `HttpOnly`, `Path=/api/v1/auth` cookie. Calling `POST /api/v1/auth/refresh` validates the refresh token and slides its 7-day TTL in Redis without rotating the token string. Refresh tokens are only revoked on explicit logout (`POST /api/v1/auth/logout`) or after 7 days of inactivity.
+
 ## Consequences
 - Protection against persistent XSS token exfiltration; JavaScript running in the browser cannot read or steal the refresh token.
 - Defense-in-depth against database or Redis data breaches; refresh tokens are hashed with SHA-256 in Redis, preventing an attacker with Redis read access from hijacking user sessions.

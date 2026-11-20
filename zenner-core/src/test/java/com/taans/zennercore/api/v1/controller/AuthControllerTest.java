@@ -10,6 +10,7 @@ import com.taans.zennercore.config.properties.CorsProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.domain.entity.User;
 import com.taans.zennercore.exception.GlobalExceptionHandler;
+import com.taans.zennercore.exception.InvalidRefreshTokenException;
 import com.taans.zennercore.exception.TokenReuseException;
 import com.taans.zennercore.repository.UserRepository;
 import com.taans.zennercore.service.JwtService;
@@ -30,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -93,12 +95,9 @@ class AuthControllerTest {
         result.bodyJson().extractingPath("$.data.tokenType").isEqualTo("Bearer");
         result.bodyJson().extractingPath("$.data.expiresIn").isEqualTo(900);
 
-        String setCookie = result.actual().getResponse().getHeader(HttpHeaders.SET_COOKIE);
-        assertThat(setCookie).isNotNull();
-        assertThat(setCookie).contains("refresh_token=test-raw-refresh-token");
-        assertThat(setCookie).contains("HttpOnly");
-        assertThat(setCookie).contains("Path=/api/v1/auth");
-        assertThat(setCookie).contains("SameSite=Lax");
+        List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+        assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=test-raw-refresh-token") && c.contains("HttpOnly") && c.contains("Path=/api/v1/auth"));
+        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=test-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
     }
 
     @Test
@@ -131,11 +130,11 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/refresh rotates token and returns new access token and cookie")
-    void refresh_withValidCookie_rotatesAndReturnsTokens() {
+    @DisplayName("POST /api/v1/auth/refresh returns new access token and non-httponly cookie without rotating refresh token")
+    void refresh_withValidCookie_returnsTokens() {
         UUID userId = UUID.randomUUID();
-        String oldToken = "old-refresh-token";
-        String newToken = "new-refresh-token";
+        UUID familyId = UUID.randomUUID();
+        String rawToken = "valid-refresh-token";
 
         User user = User.builder()
             .id(userId)
@@ -143,20 +142,20 @@ class AuthControllerTest {
             .active(true)
             .build();
 
-        when(refreshTokenService.rotate(oldToken)).thenReturn(new RefreshTokenService.RotateResult(newToken, userId));
+        when(refreshTokenService.validateAndTouchSession(rawToken))
+            .thenReturn(new com.taans.zennercore.domain.auth.RefreshTokenSession(userId, familyId, java.time.Instant.now(), java.time.Instant.now().plusSeconds(604800)));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(jwtService.generateAccessToken(userId, "dev@zenner.local")).thenReturn("new-access-jwt");
 
         var result = assertThat(mvc.post().uri("/api/v1/auth/refresh")
-            .cookie(new Cookie("refresh_token", oldToken)))
+            .cookie(new Cookie("refresh_token", rawToken)))
             .hasStatus(HttpStatus.OK);
 
         result.bodyJson().extractingPath("$.data.accessToken").isEqualTo("new-access-jwt");
 
-        String setCookie = result.actual().getResponse().getHeader(HttpHeaders.SET_COOKIE);
-        assertThat(setCookie).contains("refresh_token=" + newToken);
-        assertThat(setCookie).contains("HttpOnly");
-        assertThat(setCookie).contains("Path=/api/v1/auth");
+        List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+        assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=" + rawToken) && c.contains("HttpOnly"));
+        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=new-access-jwt") && !c.contains("HttpOnly") && c.contains("Path=/"));
     }
 
     @Test
@@ -170,22 +169,22 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/refresh with reused token triggers reuse detection and returns 401")
-    void refresh_withReusedToken_returns401() {
-        String reusedToken = "already-rotated-token";
-        when(refreshTokenService.rotate(reusedToken))
-            .thenThrow(new TokenReuseException("Refresh token reuse detected"));
+    @DisplayName("POST /api/v1/auth/refresh with invalid token returns 401 ProblemDetail")
+    void refresh_withInvalidToken_returns401() {
+        String invalidToken = "invalid-token";
+        when(refreshTokenService.validateAndTouchSession(invalidToken))
+            .thenThrow(new InvalidRefreshTokenException("Invalid or expired refresh token"));
 
         assertThat(mvc.post().uri("/api/v1/auth/refresh")
-            .cookie(new Cookie("refresh_token", reusedToken)))
+            .cookie(new Cookie("refresh_token", invalidToken)))
             .hasStatus(HttpStatus.UNAUTHORIZED)
             .bodyJson()
-            .hasPathSatisfying("$.detail", detail -> assertThat(detail).isEqualTo("Refresh token reuse detected"))
+            .hasPathSatisfying("$.detail", detail -> assertThat(detail).isEqualTo("Invalid or expired refresh token"))
             .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401));
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/logout clears refresh cookie, revokes session, and returns LogoutResponse")
+    @DisplayName("POST /api/v1/auth/logout clears cookies, revokes session, and returns LogoutResponse")
     void logout_clearsCookieAndRevokes() throws Exception {
         String rawToken = "active-token";
         LogoutRequest request = new LogoutRequest(false);
@@ -196,12 +195,11 @@ class AuthControllerTest {
             .content(jsonMapper.writeValueAsString(request)))
             .hasStatus(HttpStatus.OK);
 
-        verify(refreshTokenService).revoke(eq(rawToken), eq(false));
-
         result.bodyJson().extractingPath("$.data.message").isEqualTo("Logged out successfully");
 
-        String setCookie = result.actual().getResponse().getHeader(HttpHeaders.SET_COOKIE);
-        assertThat(setCookie).contains("refresh_token=");
-        assertThat(setCookie).contains("Max-Age=0");
+        verify(refreshTokenService).revoke(rawToken, false);
+        List<String> setCookies = result.actual().getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+        assertThat(setCookies).anyMatch(c -> c.contains("refresh_token=;") && c.contains("Max-Age=0"));
+        assertThat(setCookies).anyMatch(c -> c.contains("zenner_access_token=;") && c.contains("Max-Age=0"));
     }
 }

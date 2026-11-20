@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
+import { ACCESS_TOKEN_COOKIE, getCookie, isTokenExpired } from '../util/cookie';
 
 export const getBaseUrl = (): string => {
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) {
@@ -19,7 +20,14 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
+    let token = useAuthStore.getState().token;
+    if (!token) {
+      const cookieToken = getCookie(ACCESS_TOKEN_COOKIE);
+      if (cookieToken && !isTokenExpired(cookieToken)) {
+        token = cookieToken;
+        useAuthStore.getState().setToken(cookieToken);
+      }
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

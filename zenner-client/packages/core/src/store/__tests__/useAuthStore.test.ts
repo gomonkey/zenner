@@ -70,4 +70,25 @@ describe('useAuthStore', () => {
     expect(state.token).toBeNull();
     expect(state.isInitializing).toBe(false);
   });
+
+  it('checkAuth uses valid access token from cookie without calling refresh on page reload', async () => {
+    const refreshSpy = vi.spyOn(authApi, 'refresh');
+    const futureExp = Math.floor(Date.now() / 1000) + 600; // 10 minutes in the future
+    const payload = Buffer.from(JSON.stringify({ sub: 'user-1', exp: futureExp })).toString('base64');
+    const validCookieToken = `header.${payload}.signature`;
+
+    vi.stubGlobal('document', {
+      cookie: `zenner_access_token=${validCookieToken}`,
+    });
+
+    await useAuthStore.getState().checkAuth();
+
+    const state = useAuthStore.getState();
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.token).toBe(validCookieToken);
+    expect(state.isInitializing).toBe(false);
+    expect(refreshSpy).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
 });

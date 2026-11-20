@@ -6,6 +6,7 @@ import com.taans.zennercore.api.v1.dto.response.AuthResponse;
 import com.taans.zennercore.api.v1.dto.response.LogoutResponse;
 import com.taans.zennercore.config.properties.CookieProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
+import com.taans.zennercore.domain.auth.RefreshTokenSession;
 import com.taans.zennercore.domain.entity.User;
 import com.taans.zennercore.exception.InvalidRefreshTokenException;
 import com.taans.zennercore.repository.UserRepository;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
+    public static final String ACCESS_TOKEN_COOKIE = "zenner_access_token";
     public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
     public static final String AUTH_PATH = "/api/v1/auth";
+    public static final String ROOT_PATH = "/";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,10 +62,12 @@ public class AuthController {
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
         String rawRefreshToken = refreshTokenService.createSession(user.getId());
 
-        ResponseCookie cookie = buildRefreshCookie(rawRefreshToken, jwtProperties.refreshTokenExpirySeconds());
+        ResponseCookie refreshCookie = buildRefreshCookie(rawRefreshToken, jwtProperties.refreshTokenExpirySeconds());
+        ResponseCookie accessCookie = buildAccessCookie(accessToken, jwtProperties.accessTokenExpirySeconds());
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
             .body(AuthResponse.bearer(accessToken, jwtProperties.accessTokenExpirySeconds()));
     }
 
@@ -74,9 +79,9 @@ public class AuthController {
             throw new InvalidRefreshTokenException("Refresh token cookie is missing");
         }
 
-        RefreshTokenService.RotateResult rotateResult = refreshTokenService.rotate(refreshToken);
+        RefreshTokenSession session = refreshTokenService.validateAndTouchSession(refreshToken);
 
-        User user = userRepository.findById(rotateResult.userId())
+        User user = userRepository.findById(session.userId())
             .orElseThrow(() -> new InvalidRefreshTokenException("User not found"));
 
         if (!user.isActive()) {
@@ -84,10 +89,12 @@ public class AuthController {
         }
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
-        ResponseCookie cookie = buildRefreshCookie(rotateResult.newRawRefreshToken(), jwtProperties.refreshTokenExpirySeconds());
+        ResponseCookie accessCookie = buildAccessCookie(accessToken, jwtProperties.accessTokenExpirySeconds());
+        ResponseCookie refreshCookie = buildRefreshCookie(refreshToken, jwtProperties.refreshTokenExpirySeconds());
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
             .body(AuthResponse.bearer(accessToken, jwtProperties.accessTokenExpirySeconds()));
     }
 
@@ -101,10 +108,12 @@ public class AuthController {
             refreshTokenService.revoke(refreshToken, allDevices);
         }
 
-        ResponseCookie clearCookie = buildRefreshCookie("", 0);
+        ResponseCookie clearRefreshCookie = buildRefreshCookie("", 0);
+        ResponseCookie clearAccessCookie = buildAccessCookie("", 0);
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, clearRefreshCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, clearAccessCookie.toString())
             .body(new LogoutResponse("Logged out successfully"));
     }
 
@@ -113,6 +122,16 @@ public class AuthController {
             .httpOnly(true)
             .secure(cookieProperties.secure())
             .path(AUTH_PATH)
+            .sameSite("Lax")
+            .maxAge(maxAge)
+            .build();
+    }
+
+    private ResponseCookie buildAccessCookie(String tokenValue, long maxAge) {
+        return ResponseCookie.from(ACCESS_TOKEN_COOKIE, tokenValue)
+            .httpOnly(false)
+            .secure(cookieProperties.secure())
+            .path(ROOT_PATH)
             .sameSite("Lax")
             .maxAge(maxAge)
             .build();

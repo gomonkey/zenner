@@ -1,8 +1,8 @@
 package com.taans.zennercore.service;
 
 import com.taans.zennercore.config.properties.JwtProperties;
+import com.taans.zennercore.domain.auth.RefreshTokenSession;
 import com.taans.zennercore.exception.InvalidRefreshTokenException;
-import com.taans.zennercore.exception.TokenReuseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,12 +66,12 @@ class RefreshTokenServiceTest {
     }
 
     @Test
-    @DisplayName("rotate succeeds with valid token, rotates session and removes old hash")
-    void rotate_withValidToken_rotatesSession() throws Exception {
+    @DisplayName("validateAndTouchSession succeeds with valid token and touches expiration")
+    void validateAndTouchSession_withValidToken_succeedsAndTouchesExpiration() {
         UUID userId = UUID.randomUUID();
         UUID familyId = UUID.randomUUID();
         String rawToken = "sample-raw-refresh-token";
-        String oldHash = refreshTokenService.hashToken(rawToken);
+        String hash = refreshTokenService.hashToken(rawToken);
 
         String sessionJson = """
             {
@@ -82,58 +82,61 @@ class RefreshTokenServiceTest {
             }
             """.formatted(userId, familyId);
 
-        when(valueOperations.get("auth:refresh:" + oldHash)).thenReturn(sessionJson);
+        when(valueOperations.get("auth:refresh:" + hash)).thenReturn(sessionJson);
 
-        RefreshTokenService.RotateResult result = refreshTokenService.rotate(rawToken);
+        RefreshTokenSession session = refreshTokenService.validateAndTouchSession(rawToken);
 
-        assertThat(result.userId()).isEqualTo(userId);
-        assertThat(result.newRawRefreshToken()).isNotBlank().isNotEqualTo(rawToken);
+        assertThat(session.userId()).isEqualTo(userId);
+        assertThat(session.familyId()).isEqualTo(familyId);
 
-        // Verify old token deleted and tracked as rotated
-        verify(redisTemplate).delete("auth:refresh:" + oldHash);
-        verify(valueOperations).set(eq("auth:rotated:" + oldHash), eq(userId.toString()), eq(Duration.ofSeconds(604800)));
-        verify(setOperations).remove("auth:user:" + userId + ":sessions", oldHash);
-
-        // Verify new token stored
-        String newHash = refreshTokenService.hashToken(result.newRawRefreshToken());
-        verify(valueOperations).set(eq("auth:refresh:" + newHash), anyString(), eq(Duration.ofSeconds(604800)));
-        verify(setOperations).add(eq("auth:user:" + userId + ":sessions"), eq(newHash));
+        // Verify sliding TTL touched in Redis
+        verify(redisTemplate).expire("auth:refresh:" + hash, Duration.ofSeconds(604800));
+        verify(redisTemplate).expire("auth:user:" + userId + ":sessions", Duration.ofSeconds(604800));
+        // Verify token is NOT deleted
+        verify(redisTemplate, never()).delete("auth:refresh:" + hash);
     }
 
     @Test
-    @DisplayName("rotate detects reuse when token was already rotated and revokes all user sessions")
-    void rotate_whenTokenAlreadyRotated_revokesAllSessionsAndThrows() {
+    @DisplayName("validateAndTouchSession called repeatedly with same token succeeds every time")
+    void validateAndTouchSession_calledRepeatedly_succeedsWithoutRevocation() {
         UUID userId = UUID.randomUUID();
-        String rawToken = "already-rotated-token";
+        String rawToken = "static-refresh-token";
         String hash = refreshTokenService.hashToken(rawToken);
 
-        when(valueOperations.get("auth:refresh:" + hash)).thenReturn(null);
-        when(valueOperations.get("auth:rotated:" + hash)).thenReturn(userId.toString());
-        when(setOperations.members("auth:user:" + userId + ":sessions")).thenReturn(Set.of("otherHash1", "otherHash2"));
+        String sessionJson = """
+            {
+                "userId": "%s",
+                "familyId": "%s",
+                "createdAt": "2026-11-20T00:00:00Z",
+                "expiresAt": "2026-11-27T00:00:00Z"
+            }
+            """.formatted(userId, UUID.randomUUID());
 
-        assertThatThrownBy(() -> refreshTokenService.rotate(rawToken))
-            .isInstanceOf(TokenReuseException.class)
-            .hasMessageContaining("Refresh token reuse detected");
+        when(valueOperations.get("auth:refresh:" + hash)).thenReturn(sessionJson);
 
-        verify(redisTemplate).delete(Set.of("auth:refresh:otherHash1", "auth:refresh:otherHash2"));
-        verify(redisTemplate).delete("auth:user:" + userId + ":sessions");
+        // Multiple calls simulate rapid reloads
+        RefreshTokenSession session1 = refreshTokenService.validateAndTouchSession(rawToken);
+        RefreshTokenSession session2 = refreshTokenService.validateAndTouchSession(rawToken);
+
+        assertThat(session1.userId()).isEqualTo(userId);
+        assertThat(session2.userId()).isEqualTo(userId);
+        verify(redisTemplate, never()).delete(anyString());
     }
 
     @Test
-    @DisplayName("rotate throws InvalidRefreshTokenException when token is not found")
-    void rotate_whenTokenUnknown_throwsInvalidRefreshTokenException() {
+    @DisplayName("validateAndTouchSession throws InvalidRefreshTokenException when token is not found")
+    void validateAndTouchSession_whenTokenUnknown_throwsInvalidRefreshTokenException() {
         String rawToken = "completely-unknown-token";
         String hash = refreshTokenService.hashToken(rawToken);
 
         when(valueOperations.get("auth:refresh:" + hash)).thenReturn(null);
-        when(valueOperations.get("auth:rotated:" + hash)).thenReturn(null);
 
-        assertThatThrownBy(() -> refreshTokenService.rotate(rawToken))
+        assertThatThrownBy(() -> refreshTokenService.validateAndTouchSession(rawToken))
             .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
     @Test
-    @DisplayName("logout revokes single session when allDevices is false, tracking revoked hash in auth:rotated")
+    @DisplayName("logout revokes single session when allDevices is false")
     void logout_singleDevice_revokesSession() {
         UUID userId = UUID.randomUUID();
         String rawToken = "sample-raw-token";
@@ -153,13 +156,12 @@ class RefreshTokenServiceTest {
         refreshTokenService.revoke(rawToken, false);
 
         verify(redisTemplate).delete("auth:refresh:" + hash);
-        verify(valueOperations).set(eq("auth:rotated:" + hash), eq(userId.toString()), eq(Duration.ofSeconds(604800)));
         verify(setOperations).remove("auth:user:" + userId + ":sessions", hash);
         verify(redisTemplate, never()).delete("auth:user:" + userId + ":sessions");
     }
 
     @Test
-    @DisplayName("logout revokes all user sessions when allDevices is true, tracking revoked hash in auth:rotated")
+    @DisplayName("logout revokes all user sessions when allDevices is true")
     void logout_allDevices_revokesAllSessions() {
         UUID userId = UUID.randomUUID();
         String rawToken = "sample-raw-token";
@@ -179,28 +181,7 @@ class RefreshTokenServiceTest {
 
         refreshTokenService.revoke(rawToken, true);
 
-        verify(redisTemplate).delete("auth:refresh:" + hash);
-        verify(valueOperations).set(eq("auth:rotated:" + hash), eq(userId.toString()), eq(Duration.ofSeconds(604800)));
         verify(redisTemplate).delete(Set.of("auth:refresh:hash1", "auth:refresh:hash2"));
-        verify(redisTemplate).delete("auth:user:" + userId + ":sessions");
-    }
-
-    @Test
-    @DisplayName("rotate detects reuse when token was previously revoked and revokes all user sessions")
-    void rotate_whenTokenWasRevoked_revokesAllSessionsAndThrowsReuseException() {
-        UUID userId = UUID.randomUUID();
-        String rawToken = "sample-revoked-token";
-        String hash = refreshTokenService.hashToken(rawToken);
-
-        when(valueOperations.get("auth:refresh:" + hash)).thenReturn(null);
-        when(valueOperations.get("auth:rotated:" + hash)).thenReturn(userId.toString());
-        when(setOperations.members("auth:user:" + userId + ":sessions")).thenReturn(Set.of("activeHash"));
-
-        assertThatThrownBy(() -> refreshTokenService.rotate(rawToken))
-            .isInstanceOf(TokenReuseException.class)
-            .hasMessageContaining("Refresh token reuse detected");
-
-        verify(redisTemplate).delete(Set.of("auth:refresh:activeHash"));
         verify(redisTemplate).delete("auth:user:" + userId + ":sessions");
     }
 }
