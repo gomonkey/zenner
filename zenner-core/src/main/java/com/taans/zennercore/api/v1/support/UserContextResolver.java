@@ -2,6 +2,7 @@ package com.taans.zennercore.api.v1.support;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -18,6 +19,17 @@ public class UserContextResolver {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getName() != null) {
+            if (authentication.getPrincipal() instanceof Jwt jwt) {
+                String subject = jwt.getSubject();
+                if (subject != null) {
+                    try {
+                        return UUID.fromString(subject);
+                    } catch (IllegalArgumentException ignored) {
+                        // Subject is not a UUID, fall through
+                    }
+                }
+            }
+
             String name = authentication.getName();
             if (!"anonymousUser".equalsIgnoreCase(name)) {
                 try {

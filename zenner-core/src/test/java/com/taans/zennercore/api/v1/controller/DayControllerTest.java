@@ -4,12 +4,14 @@ import com.taans.zennercore.api.v1.dto.response.DayResponse;
 import com.taans.zennercore.api.v1.support.GlobalResponseWrapper;
 import com.taans.zennercore.api.v1.support.UserContextResolver;
 import com.taans.zennercore.config.SecurityConfig;
+import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.exception.GlobalExceptionHandler;
 import com.taans.zennercore.exception.ResourceNotFoundException;
 import com.taans.zennercore.service.DayService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
@@ -26,9 +28,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @WebMvcTest(DayController.class)
 @Import({SecurityConfig.class, GlobalExceptionHandler.class, UserContextResolver.class, GlobalResponseWrapper.class})
+@EnableConfigurationProperties(JwtProperties.class)
 class DayControllerTest {
 
     @Autowired
@@ -38,7 +42,28 @@ class DayControllerTest {
     private DayService dayService;
 
     @Test
-    @DisplayName("GET /api/v1/days/{dayId} returns 200 OK wrapped in ApiResponse when day exists")
+    @DisplayName("GET /api/v1/days/{dayId} returns 401 Unauthorized when unauthenticated")
+    void getDay_whenUnauthenticated_returns401() {
+        UUID dayId = UUID.randomUUID();
+        assertThat(mvc.get().uri("/api/v1/days/{dayId}", dayId))
+            .hasStatus(HttpStatus.UNAUTHORIZED)
+            .bodyJson()
+            .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401))
+            .hasPathSatisfying("$.title", title -> assertThat(title).isEqualTo("Unauthorized"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/days/today returns 401 Unauthorized when unauthenticated")
+    void getOrCreateToday_whenUnauthenticated_returns401() {
+        assertThat(mvc.get().uri("/api/v1/days/today"))
+            .hasStatus(HttpStatus.UNAUTHORIZED)
+            .bodyJson()
+            .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401))
+            .hasPathSatisfying("$.title", title -> assertThat(title).isEqualTo("Unauthorized"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/days/{dayId} returns 200 OK wrapped in ApiResponse when day exists and authenticated")
     void getDay_whenExists_returns200() {
         UUID dayId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
@@ -56,25 +81,28 @@ class DayControllerTest {
             List.of()
         );
 
-        when(dayService.get(eq(dayId), any())).thenReturn(expectedResponse);
+        when(dayService.get(eq(dayId), eq(userId))).thenReturn(expectedResponse);
 
-        var json = assertThat(mvc.get().uri("/api/v1/days/{dayId}", dayId))
+        var json = assertThat(mvc.get().uri("/api/v1/days/{dayId}", dayId)
+            .with(jwt().jwt(builder -> builder.subject(userId.toString()))))
             .hasStatus(HttpStatus.OK)
             .bodyJson();
         json.extractingPath("$.success").isEqualTo(true);
         json.extractingPath("$.status").isEqualTo(200);
         json.extractingPath("$.data.id").isEqualTo(dayId.toString());
 
-        verify(dayService).get(eq(dayId), any());
+        verify(dayService).get(eq(dayId), eq(userId));
     }
 
     @Test
     @DisplayName("GET /api/v1/days/{dayId} returns 404 ProblemDetail when day not found")
     void getDay_whenNotExists_returns404() {
         UUID dayId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         when(dayService.get(eq(dayId), any())).thenThrow(new ResourceNotFoundException("Day not found with id: " + dayId));
 
-        var json = assertThat(mvc.get().uri("/api/v1/days/{dayId}", dayId))
+        var json = assertThat(mvc.get().uri("/api/v1/days/{dayId}", dayId)
+            .with(jwt().jwt(builder -> builder.subject(userId.toString()))))
             .hasStatus(HttpStatus.NOT_FOUND)
             .bodyJson();
         json.extractingPath("$.title").isEqualTo("Resource Not Found");
@@ -86,7 +114,9 @@ class DayControllerTest {
     @Test
     @DisplayName("GET /api/v1/days/{dayId} returns 400 ProblemDetail when dayId is not a valid UUID")
     void getDay_whenInvalidUuid_returns400() {
-        assertThat(mvc.get().uri("/api/v1/days/not-a-valid-uuid"))
+        UUID userId = UUID.randomUUID();
+        assertThat(mvc.get().uri("/api/v1/days/not-a-valid-uuid")
+            .with(jwt().jwt(builder -> builder.subject(userId.toString()))))
             .hasStatus(HttpStatus.BAD_REQUEST)
             .bodyJson()
             .hasPathSatisfying("$.title", title -> assertThat(title).isEqualTo("Bad Request"))
@@ -95,8 +125,40 @@ class DayControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/v1/days/today with X-User-Id header returns 200 and passes user ID")
-    void getOrCreateToday_withHeader_returns200() {
+    @DisplayName("GET /api/v1/days/today with valid JWT returns 200 and passes authenticated user ID")
+    void getOrCreateToday_withJwt_returns200() {
+        UUID userId = UUID.randomUUID();
+        UUID dayId = UUID.randomUUID();
+        LocalDate today = LocalDate.now();
+
+        DayResponse expectedResponse = new DayResponse(
+            dayId,
+            userId,
+            today,
+            false,
+            Instant.now(),
+            Instant.now(),
+            List.of(),
+            List.of(),
+            List.of()
+        );
+
+        when(dayService.getOrCreateToday(eq(userId), any(LocalDate.class))).thenReturn(expectedResponse);
+
+        var json = assertThat(mvc.get().uri("/api/v1/days/today")
+            .with(jwt().jwt(builder -> builder.subject(userId.toString()))))
+            .hasStatus(HttpStatus.OK)
+            .bodyJson();
+        json.extractingPath("$.success").isEqualTo(true);
+        json.extractingPath("$.data.userId").isEqualTo(userId.toString());
+
+        verify(dayService).getOrCreateToday(eq(userId), any(LocalDate.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/days/today with X-User-Id header overrides token user ID")
+    void getOrCreateToday_withHeader_overridesTokenUserId() {
+        UUID jwtUserId = UUID.randomUUID();
         UUID customUserId = UUID.randomUUID();
         UUID dayId = UUID.randomUUID();
         LocalDate today = LocalDate.now();
@@ -116,42 +178,13 @@ class DayControllerTest {
         when(dayService.getOrCreateToday(eq(customUserId), any(LocalDate.class))).thenReturn(expectedResponse);
 
         var json = assertThat(mvc.get().uri("/api/v1/days/today")
-            .header("X-User-Id", customUserId.toString()))
+            .header("X-User-Id", customUserId.toString())
+            .with(jwt().jwt(builder -> builder.subject(jwtUserId.toString()))))
             .hasStatus(HttpStatus.OK)
             .bodyJson();
         json.extractingPath("$.success").isEqualTo(true);
         json.extractingPath("$.data.userId").isEqualTo(customUserId.toString());
 
         verify(dayService).getOrCreateToday(eq(customUserId), any(LocalDate.class));
-    }
-
-    @Test
-    @DisplayName("GET /api/v1/days/today without header uses default dev user ID")
-    void getOrCreateToday_withoutHeader_usesDefaultUserId() {
-        UUID defaultUserId = UserContextResolver.DEFAULT_DEV_USER_ID;
-        UUID dayId = UUID.randomUUID();
-        LocalDate today = LocalDate.now();
-
-        DayResponse expectedResponse = new DayResponse(
-            dayId,
-            defaultUserId,
-            today,
-            false,
-            Instant.now(),
-            Instant.now(),
-            List.of(),
-            List.of(),
-            List.of()
-        );
-
-        when(dayService.getOrCreateToday(eq(defaultUserId), any(LocalDate.class))).thenReturn(expectedResponse);
-
-        var json = assertThat(mvc.get().uri("/api/v1/days/today"))
-            .hasStatus(HttpStatus.OK)
-            .bodyJson();
-        json.extractingPath("$.success").isEqualTo(true);
-        json.extractingPath("$.data.userId").isEqualTo(defaultUserId.toString());
-
-        verify(dayService).getOrCreateToday(eq(defaultUserId), any(LocalDate.class));
     }
 }
