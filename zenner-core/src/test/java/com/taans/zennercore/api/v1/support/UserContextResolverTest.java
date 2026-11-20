@@ -70,4 +70,23 @@ class UserContextResolverTest {
         UUID resolved = resolver.resolveUserId(null);
         assertThat(resolved).isEqualTo(UserContextResolver.DEFAULT_DEV_USER_ID);
     }
+
+    @Test
+    @DisplayName("returns authenticated user UUID from Jwt authentication token")
+    void resolveUserId_whenJwtAuthentication_returnsSubjectUuid() {
+        UUID jwtUserId = UUID.randomUUID();
+        org.springframework.security.oauth2.jwt.Jwt jwt = org.springframework.security.oauth2.jwt.Jwt.withTokenValue("mock-token")
+            .header("alg", "HS256")
+            .subject(jwtUserId.toString())
+            .claim("email", "dev@zenner.local")
+            .issuedAt(java.time.Instant.now())
+            .expiresAt(java.time.Instant.now().plusSeconds(900))
+            .build();
+        org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken auth =
+            new org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken(jwt, java.util.Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        UUID resolved = resolver.resolveUserId(null);
+        assertThat(resolved).isEqualTo(jwtUserId);
+    }
 }
