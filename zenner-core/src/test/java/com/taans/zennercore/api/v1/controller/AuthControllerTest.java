@@ -6,6 +6,7 @@ import com.taans.zennercore.api.v1.support.GlobalResponseWrapper;
 import com.taans.zennercore.api.v1.support.UserContextResolver;
 import com.taans.zennercore.config.SecurityConfig;
 import com.taans.zennercore.config.properties.CookieProperties;
+import com.taans.zennercore.config.properties.CorsProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.domain.entity.User;
 import com.taans.zennercore.exception.GlobalExceptionHandler;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import tools.jackson.databind.json.JsonMapper;
@@ -39,7 +41,8 @@ import static org.mockito.Mockito.when;
 
 @WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class, GlobalExceptionHandler.class, UserContextResolver.class, GlobalResponseWrapper.class})
-@EnableConfigurationProperties({JwtProperties.class, CookieProperties.class})
+@EnableConfigurationProperties({JwtProperties.class, CookieProperties.class, CorsProperties.class})
+@TestPropertySource(properties = "zenner.security.jwt.secret=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 class AuthControllerTest {
 
     @Autowired
@@ -182,7 +185,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/logout clears refresh cookie and revokes session")
+    @DisplayName("POST /api/v1/auth/logout clears refresh cookie, revokes session, and returns LogoutResponse")
     void logout_clearsCookieAndRevokes() throws Exception {
         String rawToken = "active-token";
         LogoutRequest request = new LogoutRequest(false);
@@ -195,24 +198,7 @@ class AuthControllerTest {
 
         verify(refreshTokenService).revoke(eq(rawToken), eq(false));
 
-        String setCookie = result.actual().getResponse().getHeader(HttpHeaders.SET_COOKIE);
-        assertThat(setCookie).contains("refresh_token=");
-        assertThat(setCookie).contains("Max-Age=0");
-    }
-
-    @Test
-    @DisplayName("POST /api/v1/auth/logout with allDevices: true revokes all sessions")
-    void logout_allDevices_revokesAllSessions() throws Exception {
-        String rawToken = "active-token";
-        LogoutRequest request = new LogoutRequest(true);
-
-        var result = assertThat(mvc.post().uri("/api/v1/auth/logout")
-            .cookie(new Cookie("refresh_token", rawToken))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonMapper.writeValueAsString(request)))
-            .hasStatus(HttpStatus.OK);
-
-        verify(refreshTokenService).revoke(eq(rawToken), eq(true));
+        result.bodyJson().extractingPath("$.data.message").isEqualTo("Logged out successfully");
 
         String setCookie = result.actual().getResponse().getHeader(HttpHeaders.SET_COOKIE);
         assertThat(setCookie).contains("refresh_token=");

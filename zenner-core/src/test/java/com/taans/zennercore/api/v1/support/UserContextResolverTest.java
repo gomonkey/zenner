@@ -6,7 +6,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,11 +32,47 @@ class UserContextResolverTest {
     }
 
     @Test
-    @DisplayName("returns header user id if provided")
-    void resolveUserId_whenHeaderProvided_returnsHeaderUserId() {
+    @DisplayName("returns header user id if provided when no authentication is present")
+    void resolveUserId_whenHeaderProvidedAndNoAuth_returnsHeaderUserId() {
         UUID headerUserId = UUID.randomUUID();
         UUID resolved = resolver.resolveUserId(headerUserId);
         assertThat(resolved).isEqualTo(headerUserId);
+    }
+
+    @Test
+    @DisplayName("returns header user id if provided when principal is anonymousUser")
+    void resolveUserId_whenHeaderProvidedAndAnonymous_returnsHeaderUserId() {
+        UUID headerUserId = UUID.randomUUID();
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            "anonymousUser",
+            "credentials",
+            List.of()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        UUID resolved = resolver.resolveUserId(headerUserId);
+        assertThat(resolved).isEqualTo(headerUserId);
+    }
+
+    @Test
+    @DisplayName("JWT subject takes absolute precedence over X-User-Id header to prevent spoofing")
+    void resolveUserId_whenJwtAuthenticatedAndHeaderProvided_jwtTakesPrecedence() {
+        UUID jwtUserId = UUID.randomUUID();
+        UUID headerUserId = UUID.randomUUID();
+
+        Jwt jwt = Jwt.withTokenValue("mock-token")
+            .header("alg", "HS256")
+            .subject(jwtUserId.toString())
+            .claim("email", "dev@zenner.local")
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(900))
+            .build();
+        JwtAuthenticationToken auth = new JwtAuthenticationToken(jwt, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        UUID resolved = resolver.resolveUserId(headerUserId);
+        assertThat(resolved).isEqualTo(jwtUserId);
+        assertThat(resolved).isNotEqualTo(headerUserId);
     }
 
     @Test
@@ -75,15 +115,14 @@ class UserContextResolverTest {
     @DisplayName("returns authenticated user UUID from Jwt authentication token")
     void resolveUserId_whenJwtAuthentication_returnsSubjectUuid() {
         UUID jwtUserId = UUID.randomUUID();
-        org.springframework.security.oauth2.jwt.Jwt jwt = org.springframework.security.oauth2.jwt.Jwt.withTokenValue("mock-token")
+        Jwt jwt = Jwt.withTokenValue("mock-token")
             .header("alg", "HS256")
             .subject(jwtUserId.toString())
             .claim("email", "dev@zenner.local")
-            .issuedAt(java.time.Instant.now())
-            .expiresAt(java.time.Instant.now().plusSeconds(900))
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(900))
             .build();
-        org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken auth =
-            new org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken(jwt, java.util.Collections.emptyList());
+        JwtAuthenticationToken auth = new JwtAuthenticationToken(jwt, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         UUID resolved = resolver.resolveUserId(null);

@@ -46,17 +46,7 @@ public class RefreshTokenService {
     }
 
     public String createSession(UUID userId) {
-        String rawToken = generateRawToken();
-        String hash = hashToken(rawToken);
-        UUID familyId = UUID.randomUUID();
-        Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(jwtProperties.refreshTokenExpirySeconds());
-
-        RefreshTokenSession session = new RefreshTokenSession(userId, familyId, now, expiresAt);
-        saveSession(hash, session);
-        addUserSession(userId, hash);
-
-        return rawToken;
+        return issueSession(userId, UUID.randomUUID());
     }
 
     public RotateResult rotate(String rawRefreshToken) {
@@ -85,20 +75,7 @@ public class RefreshTokenService {
         redisTemplate.opsForValue().set(ROTATED_PREFIX + hash, session.userId().toString(), ttl);
         removeUserSession(session.userId(), hash);
 
-        // Generate and save new rotated token
-        String newRawToken = generateRawToken();
-        String newHash = hashToken(newRawToken);
-        Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(jwtProperties.refreshTokenExpirySeconds());
-
-        RefreshTokenSession newSession = new RefreshTokenSession(
-            session.userId(),
-            session.familyId(),
-            now,
-            expiresAt
-        );
-        saveSession(newHash, newSession);
-        addUserSession(session.userId(), newHash);
+        String newRawToken = issueSession(session.userId(), session.familyId());
 
         return new RotateResult(newRawToken, session.userId());
     }
@@ -115,7 +92,9 @@ public class RefreshTokenService {
         if (sessionJson != null) {
             RefreshTokenSession session = deserializeSession(sessionJson);
             userId = session.userId();
+            Duration ttl = Duration.ofSeconds(jwtProperties.refreshTokenExpirySeconds());
             redisTemplate.delete(REFRESH_PREFIX + hash);
+            redisTemplate.opsForValue().set(ROTATED_PREFIX + hash, userId.toString(), ttl);
             removeUserSession(userId, hash);
         } else {
             String rotatedUserId = redisTemplate.opsForValue().get(ROTATED_PREFIX + hash);
@@ -147,6 +126,19 @@ public class RefreshTokenService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 algorithm not available", e);
         }
+    }
+
+    private String issueSession(UUID userId, UUID familyId) {
+        String rawToken = generateRawToken();
+        String hash = hashToken(rawToken);
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(jwtProperties.refreshTokenExpirySeconds());
+
+        RefreshTokenSession session = new RefreshTokenSession(userId, familyId, now, expiresAt);
+        saveSession(hash, session);
+        addUserSession(userId, hash);
+
+        return rawToken;
     }
 
     private String generateRawToken() {

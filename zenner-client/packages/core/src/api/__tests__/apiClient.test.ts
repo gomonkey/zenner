@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { apiClient, DEFAULT_DEV_USER_ID } from '../apiClient';
+import { apiClient } from '../apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 
 describe('apiClient', () => {
@@ -27,14 +27,15 @@ describe('apiClient', () => {
     expect(config.headers.Authorization).toBe('Bearer test-token');
   });
 
-  it('attaches default dev user id header when unauthenticated', async () => {
+  it('does not attach Authorization header or X-User-Id header when unauthenticated', async () => {
     useAuthStore.setState({ token: null, isAuthenticated: false });
 
     const config = await (apiClient.interceptors.request as any).handlers[0].fulfilled({
       headers: {},
     });
 
-    expect(config.headers['X-User-Id']).toBe(DEFAULT_DEV_USER_ID);
+    expect(config.headers.Authorization).toBeUndefined();
+    expect(config.headers['X-User-Id']).toBeUndefined();
   });
 
   it('buffers concurrent 401 requests and replays them on successful refresh', async () => {
@@ -98,12 +99,17 @@ describe('apiClient', () => {
     const postSpy = vi.spyOn(axios, 'post');
     const responseInterceptor = (apiClient.interceptors.response as any).handlers[0].rejected;
 
-    const loginError = {
-      config: { url: '/auth/login', headers: {} },
-      response: { status: 401 },
-    };
+    const authEndpoints = ['/auth/login', '/auth/refresh', '/auth/logout'];
 
-    await expect(responseInterceptor(loginError)).rejects.toEqual(loginError);
+    for (const endpoint of authEndpoints) {
+      const fakeError = {
+        config: { url: endpoint, headers: {} },
+        response: { status: 401 },
+      };
+
+      await expect(responseInterceptor(fakeError)).rejects.toEqual(fakeError);
+    }
+
     expect(postSpy).not.toHaveBeenCalled();
   });
 });

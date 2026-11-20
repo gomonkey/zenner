@@ -13,10 +13,6 @@ public class UserContextResolver {
     public static final UUID DEFAULT_DEV_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     public UUID resolveUserId(UUID headerUserId) {
-        if (headerUserId != null) {
-            return headerUserId;
-        }
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getName() != null) {
             if (authentication.getPrincipal() instanceof Jwt jwt) {
@@ -38,6 +34,10 @@ public class UserContextResolver {
                     // Name is not a UUID, fall through
                 }
             }
+        }
+
+        if (headerUserId != null) {
+            return headerUserId;
         }
 
         return DEFAULT_DEV_USER_ID;

@@ -3,6 +3,7 @@ package com.taans.zennercore.api.v1.controller;
 import com.taans.zennercore.api.v1.dto.request.LoginRequest;
 import com.taans.zennercore.api.v1.dto.request.LogoutRequest;
 import com.taans.zennercore.api.v1.dto.response.AuthResponse;
+import com.taans.zennercore.api.v1.dto.response.LogoutResponse;
 import com.taans.zennercore.config.properties.CookieProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.domain.entity.User;
@@ -17,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -93,7 +92,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(
+    public ResponseEntity<LogoutResponse> logout(
         @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
         @RequestBody(required = false) LogoutRequest request
     ) {
@@ -106,7 +105,7 @@ public class AuthController {
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
-            .body(Map.of("message", "Logged out successfully"));
+            .body(new LogoutResponse("Logged out successfully"));
     }
 
     private ResponseCookie buildRefreshCookie(String tokenValue, long maxAge) {

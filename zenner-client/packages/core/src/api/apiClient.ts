@@ -1,8 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
-export const DEFAULT_DEV_USER_ID = '00000000-0000-0000-0000-000000000001';
-
 export const getBaseUrl = (): string => {
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
@@ -24,9 +22,6 @@ apiClient.interceptors.request.use(
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      // Supply dev user ID header in development when unauthenticated
-      config.headers['X-User-Id'] = DEFAULT_DEV_USER_ID;
     }
     return config;
   },

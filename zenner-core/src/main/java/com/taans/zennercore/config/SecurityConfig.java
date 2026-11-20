@@ -1,7 +1,7 @@
 package com.taans.zennercore.config;
 
+import com.taans.zennercore.config.properties.CorsProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,14 +31,16 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
 public class SecurityConfig {
 
     private final JwtProperties jwtProperties;
+    private final CorsProperties corsProperties;
     private final JsonMapper jsonMapper;
 
-    public SecurityConfig(JwtProperties jwtProperties, JsonMapper jsonMapper) {
+    public SecurityConfig(JwtProperties jwtProperties, CorsProperties corsProperties, JsonMapper jsonMapper) {
         this.jwtProperties = jwtProperties;
+        this.corsProperties = corsProperties;
         this.jsonMapper = jsonMapper != null ? jsonMapper : JsonMapper.builder().build();
     }
 
@@ -71,11 +73,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(
-        @Value("${zenner.security.cors.allowed-origins:http://localhost:3000,http://localhost:5173}") List<String> allowedOrigins
-    ) {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedOrigins(corsProperties.allowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

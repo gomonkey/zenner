@@ -9,9 +9,6 @@ public record JwtProperties(
     long refreshTokenExpirySeconds
 ) {
     public JwtProperties {
-        if (secret == null || secret.isBlank()) {
-            secret = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-        }
         if (accessTokenExpirySeconds <= 0) {
             accessTokenExpirySeconds = 900;
         }

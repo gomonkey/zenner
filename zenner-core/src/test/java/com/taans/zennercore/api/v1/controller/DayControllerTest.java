@@ -1,9 +1,15 @@
 package com.taans.zennercore.api.v1.controller;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.taans.zennercore.api.v1.dto.response.DayResponse;
 import com.taans.zennercore.api.v1.support.GlobalResponseWrapper;
 import com.taans.zennercore.api.v1.support.UserContextResolver;
 import com.taans.zennercore.config.SecurityConfig;
+import com.taans.zennercore.config.properties.CorsProperties;
 import com.taans.zennercore.config.properties.JwtProperties;
 import com.taans.zennercore.exception.GlobalExceptionHandler;
 import com.taans.zennercore.exception.ResourceNotFoundException;
@@ -14,12 +20,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,8 +42,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @WebMvcTest(DayController.class)
 @Import({SecurityConfig.class, GlobalExceptionHandler.class, UserContextResolver.class, GlobalResponseWrapper.class})
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
+@TestPropertySource(properties = "zenner.security.jwt.secret=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 class DayControllerTest {
+
+    private static final String TEST_SECRET = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
     @Autowired
     private MockMvcTester mvc;
@@ -56,6 +69,38 @@ class DayControllerTest {
     @DisplayName("GET /api/v1/days/today returns 401 Unauthorized when unauthenticated")
     void getOrCreateToday_whenUnauthenticated_returns401() {
         assertThat(mvc.get().uri("/api/v1/days/today"))
+            .hasStatus(HttpStatus.UNAUTHORIZED)
+            .bodyJson()
+            .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401))
+            .hasPathSatisfying("$.title", title -> assertThat(title).isEqualTo("Unauthorized"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/days/today with tampered JWT returns 401 Unauthorized")
+    void getOrCreateToday_withTamperedJwt_returns401() {
+        assertThat(mvc.get().uri("/api/v1/days/today")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.tamperedSignature"))
+            .hasStatus(HttpStatus.UNAUTHORIZED)
+            .bodyJson()
+            .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401))
+            .hasPathSatisfying("$.title", title -> assertThat(title).isEqualTo("Unauthorized"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/days/today with expired JWT returns 401 Unauthorized")
+    void getOrCreateToday_withExpiredJwt_returns401() throws Exception {
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+            .subject(UUID.randomUUID().toString())
+            .expirationTime(Date.from(Instant.now().minusSeconds(3600)))
+            .issueTime(Date.from(Instant.now().minusSeconds(7200)))
+            .build();
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new MACSigner(TEST_SECRET.getBytes(StandardCharsets.UTF_8)));
+        String expiredToken = signedJWT.serialize();
+
+        assertThat(mvc.get().uri("/api/v1/days/today")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken))
             .hasStatus(HttpStatus.UNAUTHORIZED)
             .bodyJson()
             .hasPathSatisfying("$.status", status -> assertThat(status).isEqualTo(401))
@@ -156,16 +201,16 @@ class DayControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/v1/days/today with X-User-Id header overrides token user ID")
-    void getOrCreateToday_withHeader_overridesTokenUserId() {
+    @DisplayName("GET /api/v1/days/today with JWT and X-User-Id header ignores header and uses JWT subject")
+    void getOrCreateToday_withJwtAndHeader_jwtSubjectTakesPrecedence() {
         UUID jwtUserId = UUID.randomUUID();
-        UUID customUserId = UUID.randomUUID();
+        UUID spoofedUserId = UUID.randomUUID();
         UUID dayId = UUID.randomUUID();
         LocalDate today = LocalDate.now();
 
         DayResponse expectedResponse = new DayResponse(
             dayId,
-            customUserId,
+            jwtUserId,
             today,
             false,
             Instant.now(),
@@ -175,16 +220,16 @@ class DayControllerTest {
             List.of()
         );
 
-        when(dayService.getOrCreateToday(eq(customUserId), any(LocalDate.class))).thenReturn(expectedResponse);
+        when(dayService.getOrCreateToday(eq(jwtUserId), any(LocalDate.class))).thenReturn(expectedResponse);
 
         var json = assertThat(mvc.get().uri("/api/v1/days/today")
-            .header("X-User-Id", customUserId.toString())
+            .header("X-User-Id", spoofedUserId.toString())
             .with(jwt().jwt(builder -> builder.subject(jwtUserId.toString()))))
             .hasStatus(HttpStatus.OK)
             .bodyJson();
         json.extractingPath("$.success").isEqualTo(true);
-        json.extractingPath("$.data.userId").isEqualTo(customUserId.toString());
+        json.extractingPath("$.data.userId").isEqualTo(jwtUserId.toString());
 
-        verify(dayService).getOrCreateToday(eq(customUserId), any(LocalDate.class));
+        verify(dayService).getOrCreateToday(eq(jwtUserId), any(LocalDate.class));
     }
 }
