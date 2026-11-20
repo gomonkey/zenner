@@ -37,6 +37,17 @@ if ! docker ps | grep -q zenner-postgres-dev; then
     fi
 fi
 
+# Check if Redis is running
+if ! docker ps | grep -q zenner-redis-dev; then
+    echo "Warning: Redis doesn't appear to be running"
+    echo "Start it with: ./scripts/docker-local.sh up"
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 cd "$CORE_DIR"
 
 echo "Starting zenner-core..."

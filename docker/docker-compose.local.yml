@@ -1,10 +1,10 @@
 # Local development compose file for zenner
 # 
-# This provides the PostgreSQL database for zenner-core.
+# This provides PostgreSQL and Redis for zenner-core.
 #
 # Usage:
-#   Start database: docker-compose -f docker/docker-compose.local.yml up -d
-#   Stop database:  docker-compose -f docker/docker-compose.local.yml down
+#   Start services: docker-compose -f docker/docker-compose.local.yml up -d
+#   Stop services:  docker-compose -f docker/docker-compose.local.yml down
 #
 # Then run zenner-core directly via IDE or Maven:
 #   cd zenner-core && ./mvnw spring-boot:run
@@ -31,5 +31,20 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: zenner-redis-dev
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data_dev:
+  redis_data_dev:

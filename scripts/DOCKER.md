@@ -19,10 +19,10 @@ zenner/
 
 ## Local Development
 
-Runs only the PostgreSQL database. The backend service (`zenner-core`) runs via Maven/IDE.
+Runs PostgreSQL and Redis. The backend service (`zenner-core`) runs via Maven/IDE.
 
 ```bash
-# Start database
+# Start database and cache
 ./scripts/docker-local.sh up
 
 # Run backend
@@ -31,13 +31,16 @@ Runs only the PostgreSQL database. The backend service (`zenner-core`) runs via 
 # Or run manually
 cd zenner-core && ./mvnw spring-boot:run
 
-# View database logs
+# View service logs
 ./scripts/docker-local.sh logs
 
 # Connect to database
 ./scripts/docker-local.sh psql
 
-# Stop database
+# Connect to redis
+./scripts/docker-local.sh redis-cli
+
+# Stop services
 ./scripts/docker-local.sh down
 
 # Clean everything (removes volumes)

@@ -23,7 +23,7 @@ command="${1:-help}"
 
 case "$command" in
   up|start)
-    echo "Starting local PostgreSQL database..."
+    echo "Starting local PostgreSQL and Redis services..."
     if [ -f "$ENV_FILE" ]; then
       docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
     else
@@ -31,23 +31,24 @@ case "$command" in
       docker compose -f "$COMPOSE_FILE" up -d
     fi
     echo "✓ PostgreSQL started on port 5433"
+    echo "✓ Redis started on port 6379"
     ;;
     
   down|stop)
-    echo "Stopping local PostgreSQL database..."
+    echo "Stopping local PostgreSQL and Redis services..."
     docker compose -f "$COMPOSE_FILE" down
-    echo "✓ PostgreSQL stopped"
+    echo "✓ PostgreSQL and Redis stopped"
     ;;
     
   restart)
-    echo "Restarting local PostgreSQL database..."
+    echo "Restarting local PostgreSQL and Redis services..."
     docker compose -f "$COMPOSE_FILE" down
     if [ -f "$ENV_FILE" ]; then
       docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
     else
       docker compose -f "$COMPOSE_FILE" up -d
     fi
-    echo "✓ PostgreSQL restarted"
+    echo "✓ PostgreSQL and Redis restarted"
     ;;
     
   logs)
@@ -59,12 +60,12 @@ case "$command" in
     ;;
     
   clean)
-    echo "Stopping and removing local PostgreSQL database and volumes..."
-    read -p "This will delete all local database data. Continue? (y/N) " -n 1 -r
+    echo "Stopping and removing local services and volumes..."
+    read -p "This will delete all local database and cache data. Continue? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       docker compose -f "$COMPOSE_FILE" down -v
-      echo "✓ PostgreSQL and volumes removed"
+      echo "✓ Containers and volumes removed"
     else
       echo "Cancelled"
     fi
@@ -72,6 +73,10 @@ case "$command" in
     
   psql)
     docker exec -it zenner-postgres-dev psql -U zenner_dev -d zenner_dev
+    ;;
+
+  redis-cli)
+    docker exec -it zenner-redis-dev redis-cli
     ;;
     
   help|*)
@@ -81,19 +86,21 @@ Local Development Docker Compose Helper
 Usage: $0 <command>
 
 Commands:
-  up, start       Start PostgreSQL database
-  down, stop      Stop PostgreSQL database
-  restart         Restart PostgreSQL database
-  logs            Follow PostgreSQL logs
+  up, start       Start PostgreSQL and Redis services
+  down, stop      Stop PostgreSQL and Redis services
+  restart         Restart PostgreSQL and Redis services
+  logs            Follow service logs
   ps, status      Show running containers
-  clean           Stop and remove database with volumes (destructive)
+  clean           Stop and remove services with volumes (destructive)
   psql            Connect to PostgreSQL via psql
+  redis-cli       Connect to Redis via redis-cli
   help            Show this help message
 
 Examples:
-  $0 up           # Start database
+  $0 up           # Start services
   $0 logs         # View logs
   $0 psql         # Connect to database
+  $0 redis-cli    # Connect to redis
   $0 clean        # Remove everything
 EOF
     ;;
