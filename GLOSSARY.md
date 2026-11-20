@@ -4,6 +4,14 @@ Zenner is a daily planning and reflection service centered on living one day at 
 
 ## Language
 
+**User**:
+The individual owner of planning aggregates (Days, Reminders) who authenticates to interact with Zenner.
+_Avoid_: Account, member, client, profile
+
+**User Session**:
+An active, authenticated connection established by a User on a specific client instance, maintained until logout or expiration.
+_Avoid_: Login instance, connection, token
+
 **Day**:
 The primary planning aggregate representing a single calendar date for a user, containing that day's timeblocks, tasks, and reminder responses.
 _Avoid_: Date, entry, journal, calendar event
