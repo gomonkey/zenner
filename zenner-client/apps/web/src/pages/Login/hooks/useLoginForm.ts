@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@zenner/core/store/index';
+import { authApi } from '@zenner/core/api/endpoints/auth.api';
 
 export function useLoginForm() {
 	const { t } = useTranslation();
@@ -8,15 +9,27 @@ export function useLoginForm() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setErrorMsg('');
+		setIsLoading(true);
 
-		if (username === 'admin' && password === '123456789012') {
-			login('mock_token_123');
-		} else {
-			setErrorMsg(t('auth.invalidCredentials'));
+		try {
+			const response = await authApi.login({
+				email: username,
+				password,
+			});
+			login(response.accessToken);
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.detail ||
+				error?.response?.data?.message ||
+				t('auth.invalidCredentials');
+			setErrorMsg(message);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -27,6 +40,7 @@ export function useLoginForm() {
 		setPassword,
 		errorMsg,
 		setErrorMsg,
+		isLoading,
 		handleSubmit,
 	};
 }
